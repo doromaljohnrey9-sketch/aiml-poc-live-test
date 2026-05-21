@@ -30,7 +30,7 @@ pnpm dev
 
 Open [http://localhost:3000](http://localhost:3000).
 
-> **Note:** The initial migration includes a database trigger that auto-creates a `profiles` row when a new user signs up. This is applied automatically when you run `pnpm db:push`. See the [Getting Started guide](./docs/overview.md) for details.
+> **Note:** The initial migration includes a database trigger that auto-creates a `profiles` row and assigns the selected **role** (Admin, Operator, or Contributor) when a new user signs up. See the [Getting Started guide](./docs/overview.md#profiles-trigger) for the SQL script.
 
 ## Environment
 

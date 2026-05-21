@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { ROLES } from "@/drizzle/constants/roles-permissions.constant";
 
 const emailSchema = z.email("Please enter a valid email address");
 const passwordSchema = z.string().min(6, "Password must be at least 6 characters long");
@@ -15,6 +16,9 @@ export const registerSchema = z.object({
   name: nameSchema,
   email: emailSchema,
   password: passwordSchema,
+  role: z.enum([ROLES.ADMIN, ROLES.OPERATOR, ROLES.CONTRIBUTOR], {
+    message: "Please select a role",
+  }),
 });
 
 export type RegisterFormValues = z.infer<typeof registerSchema>;

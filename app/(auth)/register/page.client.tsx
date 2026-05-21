@@ -12,12 +12,20 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Field, FieldDescription, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { PasswordInput } from "@/components/shared/password-input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 import { getSupabaseClient } from "@/lib/supabase/client";
 
 import { registerSchema, type RegisterFormValues } from "@/schemas/auth.schema";
 
 import { AUTH_ROUTES } from "@/constants/routes.constant";
+import { ROLES } from "@/drizzle/constants/roles-permissions.constant";
 
 export const PageClient = () => {
   const router = useRouter();
@@ -31,6 +39,7 @@ export const PageClient = () => {
       name: "",
       email: "",
       password: "",
+      role: ROLES.CONTRIBUTOR,
     },
   });
 
@@ -43,6 +52,7 @@ export const PageClient = () => {
           options: {
             data: {
               name: values.name,
+              role: values.role,
             },
           },
         });
@@ -131,8 +141,32 @@ export const PageClient = () => {
                   </Field>
                 )}
               />
+              <Controller
+                name="role"
+                control={form.control}
+                render={({ field, fieldState }) => (
+                  <Field>
+                    <FieldLabel htmlFor="role">Role</FieldLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                      disabled={isPending}
+                    >
+                      <SelectTrigger id="role" aria-invalid={fieldState.invalid}>
+                        <SelectValue placeholder="Select a role" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value={ROLES.ADMIN}>Admin</SelectItem>
+                        <SelectItem value={ROLES.OPERATOR}>Operator</SelectItem>
+                        <SelectItem value={ROLES.CONTRIBUTOR}>Contributor</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    {fieldState.error ? <FieldError errors={[fieldState.error]} /> : null}
+                  </Field>
+                )}
+              />
               <Field>
-                <Button type="submit" disabled={isPending}>
+                <Button type="submit" className="w-full" disabled={isPending}>
                   Submit
                 </Button>
                 <FieldDescription className="text-center">

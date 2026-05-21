@@ -288,8 +288,9 @@ SECURITY DEFINER SET search_path = ''
 AS $$
 DECLARE
   default_role_id uuid;
+  assigned_role_id uuid;
 BEGIN
-  -- 1. Create the profile (id, name, image_url)
+  -- 1. Create the profile
   INSERT INTO public.profiles (id, name, image_url)
   VALUES (
     new.id,
@@ -297,10 +298,18 @@ BEGIN
     new.raw_user_meta_data ->> 'avatar_url'
   );
 
-  -- 2. Assign default 'contributor' role
+  -- 2. Fetch default role 'contributor'
   SELECT id INTO default_role_id FROM public.roles WHERE name = 'contributor';
   
-  IF default_role_id IS NOT NULL THEN
+  -- 3. Fetch assigned role from metadata, or use default
+  SELECT id INTO assigned_role_id 
+  FROM public.roles 
+  WHERE name = COALESCE(new.raw_user_meta_data ->> 'role', 'contributor');
+
+  IF assigned_role_id IS NOT NULL THEN
+    INSERT INTO public.user_roles (user_id, role_id)
+    VALUES (new.id, assigned_role_id);
+  ELSIF default_role_id IS NOT NULL THEN
     INSERT INTO public.user_roles (user_id, role_id)
     VALUES (new.id, default_role_id);
   END IF;

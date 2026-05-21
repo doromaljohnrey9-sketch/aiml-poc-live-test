@@ -4,6 +4,7 @@ import { ChevronsUpDown, LogOut } from "lucide-react";
 import type { SelectProfile } from "@/types/drizzle.types";
 
 import { Skeleton } from "@/components/ui/skeleton";
+import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   SidebarMenu,
@@ -36,6 +37,7 @@ export const NavUser = ({ profile, email, handleSignOut, isLoading }: NavUserPro
  
   const imageUrl = profile?.imageUrl || undefined;
   const displayName = profile?.name || "Unknown User";
+  const userRole = profile?.role || "";
   const userEmail = email || "No email";
 
   const userInfo = (
@@ -45,8 +47,15 @@ export const NavUser = ({ profile, email, handleSignOut, isLoading }: NavUserPro
         <AvatarFallback className="rounded-lg">{displayName.charAt(0)}</AvatarFallback>
       </Avatar>
       <div className="grid flex-1 text-left text-sm leading-tight">
-        <span className="truncate font-medium">{displayName}</span>
-        <span className="truncate text-xs">{userEmail}</span>
+        <div className="flex items-center gap-2 overflow-hidden">
+          <span className="truncate font-semibold">{displayName}</span>
+          {userRole && (
+            <Badge variant="secondary" className="px-1.5 py-0 text-[10px] capitalize font-normal">
+              {userRole}
+            </Badge>
+          )}
+        </div>
+        <span className="truncate text-xs text-muted-foreground">{userEmail}</span>
       </div>
     </>
   );
