@@ -14,10 +14,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { PasswordInput } from "@/components/shared/password-input";
 
 import { getSupabaseClient } from "@/lib/supabase/client";
+import { usersService } from "@/services/users.service";
 
 import { loginSchema, type LoginFormValues } from "@/schemas/auth.schema";
 
-import { AUTH_ROUTES, DEFAULT_AUTH_REDIRECT } from "@/constants/routes.constant";
+import { AUTH_ROUTES, DEFAULT_AUTH_REDIRECT, ROLE_REDIRECTS } from "@/constants/routes.constant";
 
 export const PageClient = () => {
   const router = useRouter();
@@ -48,7 +49,14 @@ export const PageClient = () => {
         toast.success("Welcome back!", {
           description: "You have been logged in successfully.",
         });
-        router.replace(DEFAULT_AUTH_REDIRECT);
+
+        const profile = await usersService.me();
+        const role = profile?.role;
+        const redirectPath = role
+          ? (ROLE_REDIRECTS[role] ?? DEFAULT_AUTH_REDIRECT)
+          : DEFAULT_AUTH_REDIRECT;
+
+        router.replace(redirectPath);
       } catch (error) {
         console.error(error);
         toast.error("Something went wrong", {

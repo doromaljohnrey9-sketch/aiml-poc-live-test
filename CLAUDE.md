@@ -37,7 +37,7 @@ pnpm docs:dev               # VitePress dev server (port 4000)
 
 - `app/(public)/` — Public landing page
 - `app/(auth)/` — Login, register, forgot/reset password
-- `app/(protected)/` — Auth-gated routes (dashboard)
+- `app/(protected)/` — Role-based entry points (/admin, /contributor, /operator)
 - `app/api/` — API routes
 
 ### Server/Client Page Pattern

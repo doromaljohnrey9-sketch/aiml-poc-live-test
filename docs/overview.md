@@ -126,7 +126,7 @@ supabase stop
 | ------------- | ---------------------- | ------------------------------------------------------------ |
 | `(public)`    | Landing page           | `/`                                                          |
 | `(auth)`      | Authentication         | `/login`, `/register`, `/forgot-password`, `/reset-password` |
-| `(protected)` | App shell (auth-gated) | `/dashboard`                                                 |
+| `(protected)` | App shell (auth-gated) | `/admin`, `/contributor`, `/operator`                        |
 
 Each group has its own layout and error boundary.
 
@@ -135,7 +135,10 @@ Each group has its own layout and error boundary.
 ```text
 app/                    Next.js App Router
 ├── (auth)/             Auth pages with card layout
-├── (protected)/        Dashboard with sidebar shell
+├── (protected)/        Role-based pages with sidebar shell
+│   ├── (admin)/        Admin section (/admin)
+│   ├── (contributor)/  Contributor section (/contributor)
+│   └── (operator)/     Operator section (/operator)
 ├── (public)/           Marketing pages
 └── api/                API endpoints
 
@@ -183,7 +186,9 @@ Middleware in `proxy.ts` enforces authentication:
 ```typescript
 // constants/routes.constant.ts
 export const PROTECTED_ROUTES = {
-  DASHBOARD: "/dashboard",
+  ADMIN: "/admin",
+  CONTRIBUTOR: "/contributor",
+  OPERATOR: "/operator",
 } as const;
 ```
 
@@ -300,10 +305,10 @@ BEGIN
 
   -- 2. Fetch default role 'contributor'
   SELECT id INTO default_role_id FROM public.roles WHERE name = 'contributor';
-  
+
   -- 3. Fetch assigned role from metadata, or use default
-  SELECT id INTO assigned_role_id 
-  FROM public.roles 
+  SELECT id INTO assigned_role_id
+  FROM public.roles
   WHERE name = COALESCE(new.raw_user_meta_data ->> 'role', 'contributor');
 
   IF assigned_role_id IS NOT NULL THEN
@@ -343,7 +348,7 @@ export const metadata = buildMetadata();
 export const metadata = buildMetadata({
   title: "Dashboard",
   description: "Your dashboard",
-  path: "/dashboard",
+  path: "/admin",
 });
 ```
 

@@ -195,10 +195,9 @@ const onSubmit = async (values: LoginFormValues) => {
       }
 
       toast.success("Welcome back!", {
-        description: "Redirecting to dashboard...",
+        description: "Redirecting to your workspace...",
       });
-
-      router.replace(PROTECTED_ROUTES.DASHBOARD);
+      router.replace(PROTECTED_ROUTES.ADMIN);
     } catch (error) {
       console.error("Login error:", error);
       toast.error("Something went wrong", {

@@ -17,9 +17,11 @@ import { NavUser } from "@/components/app-sidebar/nav-user";
 
 import { NavItems } from "./nav-items";
 import { NavDrawer } from "./nav-drawer";
+import { NavLoader } from "./nav-loader";
 
-import { APP_SIDEBAR_ITEMS } from "@/constants/app-sidebar-items.constant";
+import { ROLE_SIDEBAR_DATA, SECONDARY_SIDEBAR_ITEMS } from "@/constants/app-sidebar-items.constant";
 
+import { useQueryClient } from "@tanstack/react-query";
 import { getSupabaseClient } from "@/lib/supabase/client";
 import { useRouter } from "nextjs-toploader/app";
 import { toast } from "sonner";
@@ -31,10 +33,17 @@ export const AppSidebar = ({ ...props }: React.ComponentProps<typeof Sidebar>) =
   const supabase = getSupabaseClient();
 
   const { user, profile, isLoading } = useAuth();
+  const role = profile?.role;
+
+  // Fallback to Operator or a default set if role is missing/loading
+  const sidebarData = role ? ROLE_SIDEBAR_DATA[role] : null;
+
+  const queryClient = useQueryClient();
 
   const handleSignOut = async () => {
     try {
       await supabase.auth.signOut();
+      queryClient.clear();
       router.push("/");
     } catch (error) {
       console.error("Sign out failed:", error);
@@ -62,9 +71,17 @@ export const AppSidebar = ({ ...props }: React.ComponentProps<typeof Sidebar>) =
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        {/* <NavItems {...APP_SIDEBAR_ITEMS.platform} />
-        <NavDrawer title={APP_SIDEBAR_ITEMS.drawer.title} items={APP_SIDEBAR_ITEMS.drawer.items} /> */}
-        <NavItems {...APP_SIDEBAR_ITEMS.secondary} className="mt-auto" />
+        {isLoading ? (
+          <NavLoader />
+        ) : (
+          sidebarData && (
+            <>
+              <NavItems {...sidebarData.platform} />
+              <NavDrawer title={sidebarData.drawer.title} items={sidebarData.drawer.items} />
+            </>
+          )
+        )}
+        <NavItems {...SECONDARY_SIDEBAR_ITEMS} className="mt-auto" />
       </SidebarContent>
       <SidebarFooter>
         <NavUser

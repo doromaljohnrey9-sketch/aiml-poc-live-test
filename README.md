@@ -86,7 +86,10 @@ pnpm docs:preview           # Preview production docs
 ```text
 app/
 ├── (auth)/                 # Login, register, password reset
-├── (protected)/            # Dashboard (auth-gated)
+├── (protected)/            # Role-based pages (auth-gated)
+│   ├── (admin)/            # Admin section (/admin)
+│   ├── (contributor)/      # Contributor section (/contributor)
+│   └── (operator)/         # Operator section (/operator)
 ├── (public)/               # Landing page
 └── api/                    # API endpoints
 components/
@@ -115,6 +118,7 @@ docs/                       # VitePress documentation
 ## Features
 
 - **Authentication** — Email/password + OAuth (GitHub, Google), pre-built forms
+- **Role-Based Access Control** — Middleware + layout-based guards for Admin, Contributor, and Operator roles
 - **Route Protection** — Middleware-based auth with automatic redirects
 - **API Layer** — Consistent responses, auth guards, rate limiting
 - **Database** — Drizzle ORM with migrations, studio, soft deletes

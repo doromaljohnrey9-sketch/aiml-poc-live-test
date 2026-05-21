@@ -8,8 +8,8 @@ Hardcoded route strings make refactoring painful and error-prone:
 
 ```typescript
 // ❌ Routes scattered everywhere
-<Link href="/dashboard">Dashboard</Link>
-<Link href="/dashboard/settings">Settings</Link>
+<Link href="/admin">Admin Overview</Link>
+<Link href="/operator">Operator Logs</Link>
 
 const response = await fetch("/api/users/me");
 const redirectUrl = "/login";
@@ -41,7 +41,9 @@ export const AUTH_ROUTES = {
 
 // Protected routes that require authentication
 export const PROTECTED_ROUTES = {
-  DASHBOARD: "/dashboard",
+  ADMIN: "/admin",
+  CONTRIBUTOR: "/contributor",
+  OPERATOR: "/operator",
 } as const;
 
 // API routes
@@ -62,7 +64,7 @@ Centralized redirect destinations:
 
 ```typescript
 // When authenticated user tries to access auth pages
-export const DEFAULT_AUTH_REDIRECT = PROTECTED_ROUTES.DASHBOARD; // "/dashboard"
+export const DEFAULT_AUTH_REDIRECT = PROTECTED_ROUTES.ADMIN; // "/admin"
 
 // When unauthenticated user tries to access protected pages
 export const DEFAULT_UNAUTH_REDIRECT = AUTH_ROUTES.LOGIN; // "/login"

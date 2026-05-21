@@ -30,11 +30,11 @@ interface NavUserProps {
 
 export const NavUser = ({ profile, email, handleSignOut, isLoading }: NavUserProps) => {
   const { isMobile } = useSidebar();
- 
+
   if (isLoading) {
     return <Skeleton className="h-10 w-full rounded-lg" />;
   }
- 
+
   const imageUrl = profile?.imageUrl || undefined;
   const displayName = profile?.name || "Unknown User";
   const userRole = profile?.role || "";

@@ -20,7 +20,7 @@ The starter uses a specific folder structure. Understand these key locations:
 
 - Public pages: `app/(public)/*` — marketing landing page
 - Auth pages: `app/(auth)/*` — login, register, password reset flows
-- Protected pages: `app/(protected)/*` — dashboard and auth-gated content
+- Protected pages: `app/(protected)/*` — role-based gated content (/admin, /contributor, /operator)
 
 **Core Services:**
 
@@ -375,11 +375,12 @@ project/
 │   │       ├── page.tsx
 │   │       └── page.client.tsx
 │   ├── (protected)/               # Protected route group (auth-gated via proxy.ts)
+│   │   ├── (admin)/               # Admin section (/admin)
+│   │   ├── (contributor)/         # Contributor section (/contributor)
+│   │   ├── (operator)/            # Operator section (/operator)
 │   │   ├── error.tsx              # Protected error boundary
 │   │   ├── layout.tsx             # Sidebar shell (SidebarProvider + SiteHeader + AppSidebar)
-│   │   ├── loading.tsx            # Protected loading skeleton
-│   │   └── dashboard/
-│   │       └── page.tsx           # Server component (static placeholder)
+│   │   └── loading.tsx            # Protected loading skeleton
 │   ├── (public)/                  # Public marketing route group
 │   │   ├── error.tsx              # Public error boundary
 │   │   ├── page.tsx               # Server entry → renders PageClient
@@ -543,7 +544,7 @@ This project uses three route groups (parenthesized directories that don't creat
 | ------------- | ------------------------------------------------------------ | ---------------------- | ---------------------------------- |
 | `(public)`    | `/`                                                          | Marketing landing page | No layout (inherits root)          |
 | `(auth)`      | `/login`, `/register`, `/forgot-password`, `/reset-password` | Auth flows             | Centered card with branding        |
-| `(protected)` | `/dashboard/*`                                               | App shell (auth-gated) | Sidebar + header (SidebarProvider) |
+| `(protected)` | `/admin`, `/contributor`, `/operator`                        | App shell (auth-gated) | Sidebar + header (SidebarProvider) |
 
 ### Server/Client Split Pattern
 
@@ -628,7 +629,7 @@ export const config = {
 ```
 
 - Uses `supabase.auth.getClaims()` (not `getUser()`) for performance — avoids a DB round-trip
-- Supports wildcard patterns: `"/dashboard/*"` matches `/dashboard` and `/dashboard/**`
+- Supports wildcard patterns: `"/admin/*"` matches `/admin` and `/admin/**`
 - Unauthenticated users are redirected to `/login?redirect=<original_path>`
 - **Add new protected routes** to `PROTECTED_ROUTES` in `constants/routes.constant.ts`
 
@@ -641,7 +642,7 @@ import { buildMetadata } from "@/lib/seo";
 export const metadata = buildMetadata({
   title: "Dashboard", // → "Dashboard | NextBase"
   description: "Your dashboard",
-  path: "/dashboard", // canonical URL
+  path: "/admin", // canonical URL
   noIndex: false, // robots indexing
 });
 ```
@@ -828,7 +829,7 @@ const onFormSubmit = (values: FormValues) => {
 
       // Success path
       toast.success("Welcome back!", { description: "Redirecting to dashboard..." });
-      router.replace("/dashboard");
+      router.replace("/admin");
     } catch (error) {
       // Level 2: Unexpected errors (network, runtime)
       console.error(error);
@@ -1167,7 +1168,7 @@ Used for cross-component data in route groups. Profile data is currently fetched
 
 ```typescript
 // ✅ Good: Fetch in Server Component, pass to client
-// app/(protected)/dashboard/page.tsx
+// app/(protected)/(admin)/admin/page.tsx
 export default async function DashboardPage() {
   const data = await fetchData()
   return <DashboardClient initialData={data} />

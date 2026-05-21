@@ -5,7 +5,7 @@ import { ROLES, type RoleName } from "@/drizzle/constants/roles-permissions.cons
 
 export const useRole = () => {
   const { profile, isLoading } = useAuth();
-  
+
   const role = profile?.role as RoleName | undefined;
 
   const isAdmin = role === ROLES.ADMIN;

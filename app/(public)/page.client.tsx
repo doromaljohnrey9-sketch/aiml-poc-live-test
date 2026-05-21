@@ -6,6 +6,8 @@ import { Button } from "@/components/ui/button";
 import { ModeToggle } from "@/components/ui/mode-toggle";
 
 import { useAuth } from "@/hooks/use-auth";
+import { useRole } from "@/hooks/use-role";
+import { ROLE_REDIRECTS, DEFAULT_AUTH_REDIRECT } from "@/constants/routes.constant";
 
 const includes = [
   {
@@ -53,6 +55,9 @@ const includes = [
 
 export const PageClient = () => {
   const { user } = useAuth();
+  const { role } = useRole();
+
+  const redirectPath = role ? ROLE_REDIRECTS[role] ?? DEFAULT_AUTH_REDIRECT : DEFAULT_AUTH_REDIRECT;
 
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col">
@@ -62,10 +67,8 @@ export const PageClient = () => {
           <div className="flex items-center gap-2">
             <div className="flex items-center gap-4 text-sm">
               {user ? (
-                <Link href="/dashboard">
-                  <Button size="sm" variant="outline">
-                    Dashboard
-                  </Button>
+                <Link href={redirectPath}>
+                  <div className="flex h-9 items-center px-4 text-sm font-medium">Enter App</div>
                 </Link>
               ) : (
                 <>
@@ -115,8 +118,8 @@ export const PageClient = () => {
           </div>
 
           <div className="flex gap-3 mb-16">
-            <Link href={user ? "/dashboard" : "/register"}>
-              <Button size="sm">{user ? "Dashboard" : "Get Started"}</Button>
+            <Link href={user ? redirectPath : "/register"}>
+              <Button size="sm">{user ? "Enter App" : "Get Started"}</Button>
             </Link>
             <Link
               href="https://github.com/alpacaPwaa/aiml-poc.git"
