@@ -24,7 +24,7 @@ export default function AdminPageClient() {
         <EmptyHeader>
           <EmptyTitle>Welcome, {isLoading ? "..." : name}!</EmptyTitle>
           <EmptyDescription>
-            You are logged in as an <strong>Admin</strong>. This is your command center placeholder.
+            You are logged in as an <strong>Admin</strong>. This is your dashboard for tracking the weekly loop and configuring system settings.
           </EmptyDescription>
         </EmptyHeader>
       </Empty>

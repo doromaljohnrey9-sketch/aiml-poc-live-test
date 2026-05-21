@@ -8,7 +8,7 @@ import {
   EmptyDescription, 
   EmptyMedia 
 } from "@/components/ui/empty";
-import { User } from "lucide-react";
+import { FilePlus2 } from "lucide-react";
 
 export default function ContributorPageClient() {
   const { profile, isLoading, user } = useAuth();
@@ -19,12 +19,12 @@ export default function ContributorPageClient() {
     <div className="flex flex-1 items-center justify-center p-8">
       <Empty className="max-w-md">
         <EmptyMedia variant="icon">
-          <User className="h-6 w-6" />
+          <FilePlus2 className="h-6 w-6" />
         </EmptyMedia>
         <EmptyHeader>
           <EmptyTitle>Welcome, {isLoading ? "..." : name}!</EmptyTitle>
           <EmptyDescription>
-            You are logged in as a <strong>Contributor</strong>. This is your workspace placeholder.
+            You are logged in as a <strong>Contributor</strong>. This is where you contribute and manage content sources for the AIML pipeline.
           </EmptyDescription>
         </EmptyHeader>
       </Empty>

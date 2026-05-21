@@ -9,61 +9,21 @@ import { useAuth } from "@/hooks/use-auth";
 import { useRole } from "@/hooks/use-role";
 import { ROLE_REDIRECTS, DEFAULT_AUTH_REDIRECT } from "@/constants/routes.constant";
 
-const includes = [
-  {
-    label: "Framework",
-    items: ["Next.js 16 (App Router, RSC)", "TypeScript 5.9 strict", "React 19"],
-  },
-  {
-    label: "Backend",
-    items: [
-      "Supabase Auth + OAuth",
-      "Drizzle ORM + Postgres",
-      "Structured API routes + auth guards",
-      "Rate limiting (Upstash Redis)",
-      "Email sending (Resend)",
-    ],
-  },
-  {
-    label: "Frontend",
-    items: [
-      "Tailwind CSS v4",
-      "Shadcn/ui (Radix)",
-      "TanStack React Query",
-      "react-hook-form + Zod",
-    ],
-  },
-  {
-    label: "Auth",
-    items: [
-      "Login, register, forgot & reset password",
-      "Protected routes with session refresh",
-      "Proxy-based middleware",
-    ],
-  },
-  { label: "Testing", items: ["Vitest + Testing Library", "Playwright E2E (multi-browser)"] },
-  {
-    label: "Infra",
-    items: [
-      "Docker containerized",
-      "GitHub Actions CI/CD",
-      "ESLint + Prettier",
-      "VitePress docs site",
-    ],
-  },
-];
+// Minimal B2B Branding for AIML System
 
 export const PageClient = () => {
   const { user } = useAuth();
   const { role } = useRole();
 
-  const redirectPath = role ? ROLE_REDIRECTS[role] ?? DEFAULT_AUTH_REDIRECT : DEFAULT_AUTH_REDIRECT;
+  const redirectPath = role
+    ? (ROLE_REDIRECTS[role] ?? DEFAULT_AUTH_REDIRECT)
+    : DEFAULT_AUTH_REDIRECT;
 
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col">
       <nav className="border-b border-border">
         <div className="max-w-2xl mx-auto px-4 py-4 flex items-center justify-between">
-          <span className="font-mono text-sm">NextBase</span>
+          <span className="font-mono text-sm uppercase tracking-tight">AIML System</span>
           <div className="flex items-center gap-2">
             <div className="flex items-center gap-4 text-sm">
               {user ? (
@@ -89,79 +49,51 @@ export const PageClient = () => {
         </div>
       </nav>
 
-      <main className="flex-1">
-        <div className="max-w-2xl mx-auto px-4 pt-16 pb-20 sm:pt-24 sm:pb-28">
-          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight mb-3">
-            Next.js + Supabase starter.
-          </h1>
-          <p className="text-muted-foreground text-sm sm:text-base mb-6">
-            Auth, database, APIs, testing, and deploy — wired up and ready. Clone, build, ship.
-          </p>
-
-          <div className="rounded-md border border-border bg-muted/50 p-4 font-mono text-sm leading-relaxed mb-8">
-            <p className="text-muted-foreground">
-              <span className="select-none text-muted-foreground/50">$ </span>
-              git clone https://github.com/alpacaPwaa/aiml-poc.git
-            </p>
-            <p className="text-muted-foreground">
-              <span className="select-none text-muted-foreground/50">$ </span>
-              pnpm install
-            </p>
-            <p className="text-muted-foreground">
-              <span className="select-none text-muted-foreground/50">$ </span>
-              cp .env.example .env
-            </p>
-            <p className="text-muted-foreground">
-              <span className="select-none text-muted-foreground/50">$ </span>
-              pnpm dev
-            </p>
+      <main className="flex-1 flex flex-col items-center justify-center text-center px-4">
+        <div className="max-w-3xl">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-border bg-muted/50 text-[10px] sm:text-xs font-mono uppercase tracking-widest text-muted-foreground mb-8">
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
+            </span>
+            System Operational
           </div>
 
-          <div className="flex gap-3 mb-16">
+          <h1 className="text-4xl sm:text-6xl font-bold tracking-tight mb-6 bg-linear-to-b from-foreground to-foreground/70 bg-clip-text text-transparent">
+            AI-driven Marketing Loop for Bio/Pharma
+          </h1>
+
+          <p className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto mb-10 leading-relaxed">
+            Continuous content creation, regulatory-aware review cycles, and automated distribution
+            infrastructure for global visibility.
+          </p>
+
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link href={user ? redirectPath : "/register"}>
-              <Button size="sm">{user ? "Enter App" : "Get Started"}</Button>
-            </Link>
-            <Link
-              href="https://github.com/alpacaPwaa/aiml-poc.git"
-              target="_blank"
-              rel="noreferrer"
-            >
-              <Button size="sm" variant="ghost">
-                GitHub &rarr;
+              <Button size="lg" className="rounded-full px-8 h-12 text-base font-medium">
+                {user ? "Enter App" : "Get Started"}
               </Button>
             </Link>
           </div>
-
-          <section>
-            <h2 className="text-xs font-mono text-muted-foreground uppercase tracking-wider mb-6">
-              What&apos;s included
-            </h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
-              {includes.map((group) => (
-                <div key={group.label}>
-                  <h3 className="text-sm font-medium mb-2">{group.label}</h3>
-                  <ul className="space-y-1">
-                    {group.items.map((item, i) => (
-                      <li key={i} className="text-sm text-muted-foreground">
-                        {item}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              ))}
-            </div>
-          </section>
         </div>
       </main>
 
-      <footer className="border-t border-border py-6">
-        <div className="max-w-2xl mx-auto px-4 text-xs text-muted-foreground flex justify-between">
-          <span>&copy; {new Date().getFullYear()} WannaCry081</span>
+      <footer className="border-t border-border py-10">
+        <div className="max-w-2xl mx-auto px-4 text-xs text-muted-foreground flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="flex items-center gap-4">
+            <span>&copy; {new Date().getFullYear()} AIML System</span>
+            <Link href="/privacy" className="hover:text-foreground transition">
+              Privacy
+            </Link>
+            <Link href="/terms" className="hover:text-foreground transition">
+              Terms
+            </Link>
+          </div>
           <Link
             href="https://github.com/alpacaPwaa/aiml-poc.git"
             target="_blank"
             rel="noreferrer"
-            className="hover:text-foreground transition"
+            className="hover:text-foreground transition flex items-center gap-1"
           >
             GitHub
           </Link>

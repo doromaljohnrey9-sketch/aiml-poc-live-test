@@ -8,7 +8,7 @@ import {
   EmptyDescription, 
   EmptyMedia 
 } from "@/components/ui/empty";
-import { Activity } from "lucide-react";
+import { ClipboardCheck } from "lucide-react";
 
 export default function OperatorPageClient() {
   const { profile, isLoading, user } = useAuth();
@@ -19,12 +19,12 @@ export default function OperatorPageClient() {
     <div className="flex flex-1 items-center justify-center p-8">
       <Empty className="max-w-md">
         <EmptyMedia variant="icon">
-          <Activity className="h-6 w-6" />
+          <ClipboardCheck className="h-6 w-6" />
         </EmptyMedia>
         <EmptyHeader>
           <EmptyTitle>Welcome, {isLoading ? "..." : name}!</EmptyTitle>
           <EmptyDescription>
-            You are logged in as an <strong>Operator</strong>. This is your terminal placeholder.
+            You are logged in as an <strong>Operator</strong>. This is your control hub for reviewing AI-generated content and managing distribution.
           </EmptyDescription>
         </EmptyHeader>
       </Empty>

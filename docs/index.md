@@ -3,12 +3,12 @@
 layout: home
 
 hero:
-  name: "NextBase"
-  text: "Starter Template"
-  tagline: "Production-ready full-stack template with authentication, database, and deployment"
+  name: "AIML System"
+  text: "Marketing Automation Loop"
+  tagline: "Operational infrastructure for continuous content creation, review, and distribution in bio/pharma"
   image:
     src: logo.png
-    alt: NextBase
+    alt: AIML System
   actions:
     - theme: brand
       text: Get Started
@@ -18,16 +18,16 @@ hero:
       link: http://localhost:3000/
 
 features:
-  - title: Authentication
-    details: Email/password + OAuth with pre-built login, register, and password reset flows
-  - title: Route Protection
-    details: Middleware-based session management with automatic redirects for protected routes
-  - title: Database & ORM
-    details: Drizzle ORM with PostgreSQL, type-safe queries, migrations, and Drizzle Studio
-  - title: Component Library
-    details: Shadcn/ui + Radix primitives with Tailwind CSS v4 and sidebar navigation shell
-  - title: API Patterns
-    details: Consistent response format, auth guards, rate limiting, and centralized error handling
-  - title: Developer Experience
-    details: TypeScript strict mode, ESLint, Prettier, Vitest, Playwright, Docker, and CI/CD
+  - title: AI Content Loop
+    details: GPT-4 powered generation with Tavily scraping and NDA-safe phrasing filters.
+  - title: Role-Based Workflows
+    details: Specialized interfaces for Admin, Operator, and Contributor roles with strict permissions.
+  - title: Durable Workflows
+    details: Vercel Workflows (SDK v4) for resilient, long-running processes (scraping, generation, publishing).
+  - title: Multi-language Support
+    details: Dynamic English and Korean content generation per source with per-source selection.
+  - title: Channel Distribution
+    details: One-click publishing to LinkedIn, internal blog engine, and Resend newsletters.
+  - title: Governance & QC
+    details: Immutable audit logs and a 3-checkbox verification process for Operational excellence.
 ---

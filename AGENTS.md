@@ -1,12 +1,12 @@
 # AGENTS.md
 
-Developer guide for working with your cloned NextBase project. This guide outlines the project structure, conventions, patterns, and workflows to help you understand and extend the starter template.
+Developer guide for working with your cloned AIML System project. This guide outlines the project structure, conventions, patterns, and workflows to help you understand and extend the system.
 
 ## Project Overview
 
 ### What You Have
 
-You've cloned a full-stack starter built on NextBase (Next.js + Supabase + Drizzle ORM), with a separate VitePress docs site:
+You've cloned a full-stack starter built on the AIML System (Next.js + Supabase + Drizzle ORM), with a separate VitePress docs site:
 
 - **Included features:** Authentication flows, protected routes, dashboard shell, API routes, and CI pipeline for lint/unit/e2e/build
 - **Key directories:** `app/(auth)/*`, `app/(protected)/*`, `app/api/*`, `.github/workflows/*`
@@ -640,7 +640,7 @@ export const config = {
 import { buildMetadata } from "@/lib/seo";
 
 export const metadata = buildMetadata({
-  title: "Dashboard", // → "Dashboard | NextBase"
+  title: "Dashboard", // → "Dashboard | AIML System"
   description: "Your dashboard",
   path: "/admin", // canonical URL
   noIndex: false, // robots indexing

@@ -16,7 +16,6 @@ import {
 import { NavUser } from "@/components/app-sidebar/nav-user";
 
 import { NavItems } from "./nav-items";
-import { NavDrawer } from "./nav-drawer";
 import { NavLoader } from "./nav-loader";
 
 import { ROLE_SIDEBAR_DATA, SECONDARY_SIDEBAR_ITEMS } from "@/constants/app-sidebar-items.constant";
@@ -62,8 +61,8 @@ export const AppSidebar = ({ ...props }: React.ComponentProps<typeof Sidebar>) =
                   <Command className="size-4" />
                 </div>
                 <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-medium">NextBase</span>
-                  <span className="truncate text-xs">Next.js + Supabase</span>
+                  <span className="truncate font-medium uppercase tracking-tight">AIML System</span>
+                  <span className="truncate text-xs">Marketing Automation Loop</span>
                 </div>
               </Link>
             </SidebarMenuButton>
@@ -77,7 +76,6 @@ export const AppSidebar = ({ ...props }: React.ComponentProps<typeof Sidebar>) =
           sidebarData && (
             <>
               <NavItems {...sidebarData.platform} />
-              <NavDrawer title={sidebarData.drawer.title} items={sidebarData.drawer.items} />
             </>
           )
         )}

@@ -1,32 +1,36 @@
-# NextBase
+# AIML System
 
-![NextBase Browser Image](/public/nextbase-template.png)
+AI-driven Inbound Marketing Loop for the bio/pharma industry. Operational infrastructure for continuous content creation, review, and distribution.
 
-A production-ready full-stack starter built with **Next.js 16**, **Supabase**, **Drizzle ORM**, and **TypeScript**.
+## Overview
 
-## Tech Stack
+The AIML System is designed to solve the problem of sustained inbound marketing for highly specialized B2B industries like bio/pharma. It implements a continuous loop that automates gathering news, generating multi-language insights, and distributing them across professional channels.
 
-| Category        | Technology                                    |
-| --------------- | --------------------------------------------- |
-| Framework       | Next.js 16 (App Router), React 19, TypeScript |
-| Auth & Database | Supabase (email/password, OAuth), PostgreSQL  |
-| ORM             | Drizzle ORM (type-safe queries, migrations)   |
-| UI              | Shadcn/ui, Radix, Tailwind CSS v4             |
-| State           | TanStack React Query, Zustand                 |
-| Forms           | react-hook-form, Zod                          |
-| Testing         | Vitest (unit), Playwright (E2E)               |
-| Docs            | VitePress                                     |
-| Deploy          | Docker, GitHub Actions CI                     |
+### Key Capabilities
 
-## Quick Start
+- **Automated Lifecycle**: Self-executing weekly loops via Vercel Workflows.
+- **Regulatory-Aware AI**: GPT-4 powered generation with NDA-safe phrasing filters.
+- **Role-Based Governance**: Strict 3-check review system for Operators and Admins.
+- **Multichannel Distribution**: One-click publishing to LinkedIn, Blog, and Newsletters.
 
-```bash
-pnpm install
-cp .env.example .env
-# Add your Supabase credentials (see Environment below)
-pnpm db:push
-pnpm dev
-```
+## Architecture
+
+The system is built on a modern, high-performance stack:
+- **Framework**: Next.js 16 (App Router)
+- **Database**: Supabase + Postgres
+- **ORM**: Drizzle ORM
+- **Automation**: Vercel Workflows (SDK v4) + Vercel Cron
+- **Identity**: Supabase Auth
+
+## Roles & Workflows
+
+1. **Contributor**: Submits content sources and seed information.
+2. **Operator**: Reviews AI-generated content, manages multi-language translations, and handles distribution.
+3. **Admin**: Oversees pipeline health, system configuration, and user permissions.
+
+---
+
+## Setup
 
 Open [http://localhost:3000](http://localhost:3000).
 
@@ -117,17 +121,14 @@ docs/                       # VitePress documentation
 
 ## Features
 
-- **Authentication** — Email/password + OAuth (GitHub, Google), pre-built forms
-- **Role-Based Access Control** — Middleware + layout-based guards for Admin, Contributor, and Operator roles
-- **Route Protection** — Middleware-based auth with automatic redirects
-- **API Layer** — Consistent responses, auth guards, rate limiting
-- **Database** — Drizzle ORM with migrations, studio, soft deletes
-- **Sidebar Shell** — Collapsible navigation with user menu
-- **Email** — Resend integration (optional)
-- **SEO** — Metadata helper with Open Graph and Twitter cards
-- **Rate Limiting** — Tiered Upstash Redis limits (optional, skipped in dev)
-- **CI/CD** — GitHub Actions for lint, tests, and build
-- **Docker** — Multi-stage production build (Node 22 Alpine)
+- **AI Content Loop** — GPT-4 powered generation with Tavily scraping and NDA-safe phrasing filters
+- **Role-Based Workflows** — Specialized interfaces and permissions for Admin, Operator, and Contributor roles
+- **Durable Workflows** — Vercel Workflows (SDK v4) for resilient, long-running processes (scraping, generation, publishing)
+- **Multi-language Support** — Dynamic English and Korean content generation per source
+- **Channel Distribution** — One-click publishing to LinkedIn, internal blog, and Resend newsletters
+- **Governance** — Immutable audit logs and a 3-checkbox verification process for Operators
+- **Rate Limiting** — Tiered Upstash Redis limits for API and Auth routes
+- **CI/CD** — GitHub Actions for quality assurance and multi-browser E2E testing
 
 ## Documentation
 

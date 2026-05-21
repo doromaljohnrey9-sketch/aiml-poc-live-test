@@ -2,9 +2,13 @@
 outline: deep
 ---
 
-# Getting Started
+# Platform Overview
 
-A production-ready template with Next.js 16, Supabase, Drizzle ORM, and TanStack Query. Clone, configure, and start building.
+The AIML (AI-driven Inbound Marketing Loop) System is a specialized B2B marketing automation platform targeting the global bio/pharma industry.
+
+## System Purpose
+
+The platform automates the end-to-end lifecycle of high-value industry content, from discovery through AI-assisted generation to professional distribution.
 
 ## Quick Start
 
@@ -122,11 +126,15 @@ supabase stop
 
 ### Route Groups
 
-| Group         | Purpose                | Paths                                                        |
-| ------------- | ---------------------- | ------------------------------------------------------------ |
-| `(public)`    | Landing page           | `/`                                                          |
-| `(auth)`      | Authentication         | `/login`, `/register`, `/forgot-password`, `/reset-password` |
-| `(protected)` | App shell (auth-gated) | `/admin`, `/contributor`, `/operator`                        |
+| Group         | Purpose                         | Paths                                                        |
+| ------------- | ------------------------------- | ------------------------------------------------------------ |
+| `(public)`    | Landing page                    | `/`                                                          |
+| `(auth)`      | Authentication                  | `/login`, `/register`, `/forgot-password`, `/reset-password` |
+| `(protected)` | AIML Pipeline (auth-gated)      | `/admin`, `/contributor`, `/operator`                        |
+
+- **Admin**: CEO/Lead view for pipeline status and global configuration.
+- **Contributor**: Internal staff view for submitting content sources.
+- **Operator**: Marketing staff view for reviewing and distributing content.
 
 Each group has its own layout and error boundary.
 

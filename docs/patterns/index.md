@@ -4,7 +4,7 @@ outline: deep
 
 # Patterns
 
-Standardized patterns used across the template. Each pattern solves a specific problem and works together with the others.
+Standardized patterns used across the platform. Each pattern solves a specific problem and works together with the others.
 
 | Pattern                              | Purpose                    | When to Use                    |
 | ------------------------------------ | -------------------------- | ------------------------------ |
