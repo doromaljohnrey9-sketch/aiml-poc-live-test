@@ -1,6 +1,6 @@
 {
-  "name": "aiml-system",
-  "version": "0.9.0",
+  "name": "nextjs-supabase-template",
+  "version": "0.10.0",
   "private": true,
   "scripts": {
     "start:all": "concurrently \"pnpm dev\" \"pnpm docs:dev\" \"pnpm db:studio\"",
