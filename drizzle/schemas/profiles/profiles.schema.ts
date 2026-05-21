@@ -1,4 +1,4 @@
-import { pgTable, varchar, uuid, timestamp } from "drizzle-orm/pg-core";
+import { pgTable, varchar, uuid, timestamp, boolean } from "drizzle-orm/pg-core";
 import { users as authUsers } from "../auth/users.schema";
 
 export const profiles = pgTable("profiles", {
@@ -12,4 +12,5 @@ export const profiles = pgTable("profiles", {
   deletedAt: timestamp("deleted_at"),
   name: varchar("name", { length: 100 }).notNull(),
   imageUrl: varchar("image_url", { length: 255 }),
+  isActive: boolean("is_active").default(true),
 });
