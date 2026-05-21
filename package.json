@@ -15,7 +15,7 @@
     "docs:build": "vitepress build docs",
     "docs:preview": "vitepress preview docs",
     "db:push": "drizzle-kit push --config=./config/drizzle.config.ts",
-    "db:generate": "drizzle-kit generate --config=./config/drizzle.config.ts --name",
+    "db:generate": "drizzle-kit generate --config=./config/drizzle.config.ts",
     "db:migrate": "drizzle-kit migrate --config=./config/drizzle.config.ts",
     "db:studio": "drizzle-kit studio --config=./config/drizzle.config.ts",
     "db:pull": "drizzle-kit pull --config=./config/drizzle.config.ts",
@@ -23,7 +23,8 @@
     "test:e2e": "playwright test --config=./config/playwright.config.ts",
     "test:e2e:ui": "playwright test --config=./config/playwright.config.ts --ui",
     "test:e2e:debug": "playwright test --config=./config/playwright.config.ts --debug",
-    "reset-project": "node scripts/reset-project.js"
+    "reset-project": "node scripts/reset-project.js",
+    "db:seed:roles-permissions": "tsx --env-file=.env drizzle/seed/roles-permissions-seed.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "5.2.2",

@@ -286,14 +286,25 @@ RETURNS trigger
 LANGUAGE plpgsql
 SECURITY DEFINER SET search_path = ''
 AS $$
+DECLARE
+  default_role_id uuid;
 BEGIN
-  INSERT INTO public.profiles (id, name, email, image_url)
+  -- 1. Create the profile (id, name, image_url)
+  INSERT INTO public.profiles (id, name, image_url)
   VALUES (
     new.id,
-    new.raw_user_meta_data ->> 'name',
-    new.raw_user_meta_data ->> 'email',
+    COALESCE(new.raw_user_meta_data ->> 'name', 'New User'),
     new.raw_user_meta_data ->> 'avatar_url'
   );
+
+  -- 2. Assign default 'contributor' role
+  SELECT id INTO default_role_id FROM public.roles WHERE name = 'contributor';
+  
+  IF default_role_id IS NOT NULL THEN
+    INSERT INTO public.user_roles (user_id, role_id)
+    VALUES (new.id, default_role_id);
+  END IF;
+
   RETURN new;
 END;
 $$;

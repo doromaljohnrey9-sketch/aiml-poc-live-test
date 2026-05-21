@@ -30,7 +30,7 @@ export const AppSidebar = ({ ...props }: React.ComponentProps<typeof Sidebar>) =
   const router = useRouter();
   const supabase = getSupabaseClient();
 
-  const { profile, isLoading } = useAuth();
+  const { user, profile, isLoading } = useAuth();
 
   const handleSignOut = async () => {
     try {
@@ -67,7 +67,12 @@ export const AppSidebar = ({ ...props }: React.ComponentProps<typeof Sidebar>) =
         <NavItems {...APP_SIDEBAR_ITEMS.secondary} className="mt-auto" />
       </SidebarContent>
       <SidebarFooter>
-        <NavUser profile={profile} handleSignOut={handleSignOut} isLoading={isLoading} />
+        <NavUser
+          profile={profile}
+          email={user?.email}
+          handleSignOut={handleSignOut}
+          isLoading={isLoading}
+        />
       </SidebarFooter>
     </Sidebar>
   );

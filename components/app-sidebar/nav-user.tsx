@@ -22,20 +22,21 @@ import {
 
 interface NavUserProps {
   profile: SelectProfile | null;
+  email: string | null | undefined;
   isLoading: boolean;
   handleSignOut: () => Promise<void>;
 }
 
-export const NavUser = ({ profile, handleSignOut, isLoading }: NavUserProps) => {
+export const NavUser = ({ profile, email, handleSignOut, isLoading }: NavUserProps) => {
   const { isMobile } = useSidebar();
-
+ 
   if (isLoading) {
     return <Skeleton className="h-10 w-full rounded-lg" />;
   }
-
-  const email = profile?.email || "No email";
+ 
   const imageUrl = profile?.imageUrl || undefined;
   const displayName = profile?.name || "Unknown User";
+  const userEmail = email || "No email";
 
   const userInfo = (
     <>
@@ -45,7 +46,7 @@ export const NavUser = ({ profile, handleSignOut, isLoading }: NavUserProps) => 
       </Avatar>
       <div className="grid flex-1 text-left text-sm leading-tight">
         <span className="truncate font-medium">{displayName}</span>
-        <span className="truncate text-xs">{email}</span>
+        <span className="truncate text-xs">{userEmail}</span>
       </div>
     </>
   );
