@@ -2,6 +2,13 @@ import { pgTable, text, uuid, index } from "drizzle-orm/pg-core";
 import { profiles } from "../profiles/profiles.schema";
 import { baseColumns } from "../base";
 
+/**
+ * BANNED_PHRASES TABLE
+ *
+ * RLS Policies:
+ * - SELECT: (authenticated()) -- Authenticated users can read banned phrases for validation
+ * - WRITE (INSERT/UPDATE/DELETE): (role = 'admin') -- Only admins can manage banned phrases
+ */
 export const bannedPhrases = pgTable("banned_phrases", {
   ...baseColumns,
   phrase: text("phrase").notNull(),

@@ -2,6 +2,13 @@ import { pgTable, text, uuid, integer, boolean, jsonb, index } from "drizzle-orm
 import { contentSources } from "../content-sources/content-sources.schema";
 import { baseColumns } from "../base";
 
+/**
+ * GENERATED_CONTENT TABLE
+ *
+ * RLS Policies:
+ * - SELECT: (role IN ('admin', 'contributor', 'operator')) -- Internal roles can view generated content
+ * - WRITE (INSERT/UPDATE/DELETE): (role IN ('admin', 'operator')) -- Admin and operators can manage content
+ */
 export const generatedContent = pgTable("generated_content", {
   ...baseColumns,
   contentSourceId: uuid("content_source_id").references(() => contentSources.id),

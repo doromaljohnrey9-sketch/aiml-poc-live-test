@@ -5,6 +5,13 @@ import { PERMISSIONS, PermissionName } from "@/drizzle/constants/roles-permissio
 
 export { PERMISSIONS, type PermissionName };
 
+/**
+ * PERMISSIONS TABLE
+ *
+ * RLS Policies:
+ * - SELECT: (authenticated()) -- All authenticated users can read permissions
+ * - WRITE (INSERT/UPDATE/DELETE): (role = 'admin') -- Only admins can modify permissions
+ */
 export const permissions = pgTable("permissions", {
   ...baseColumns,
   name: varchar("name", { length: 100 }).notNull().unique(),

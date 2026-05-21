@@ -2,6 +2,13 @@ import { pgTable, text, uuid, jsonb, index } from "drizzle-orm/pg-core";
 import { profiles } from "../profiles/profiles.schema";
 import { baseColumns } from "../base";
 
+/**
+ * AUDIT_LOGS TABLE
+ *
+ * RLS Policies:
+ * - SELECT: (role = 'admin') -- Only admins can view audit logs
+ * - INSERT/UPDATE/DELETE: (role = 'admin') -- Only admins (or system) can modify audit logs
+ */
 export const auditLogs = pgTable("audit_logs", {
   ...baseColumns,
   actorId: uuid("actor_id").references(() => profiles.id),

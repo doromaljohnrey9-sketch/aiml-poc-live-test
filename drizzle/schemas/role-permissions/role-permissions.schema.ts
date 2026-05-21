@@ -2,6 +2,13 @@ import { pgTable, uuid, primaryKey } from "drizzle-orm/pg-core";
 import { roles } from "../roles/roles.schema";
 import { permissions } from "../permissions/permissions.schema";
 
+/**
+ * ROLE_PERMISSIONS TABLE (Linking table)
+ *
+ * RLS Policies:
+ * - SELECT: (authenticated()) -- All authenticated users can read role mapping
+ * - WRITE (INSERT/UPDATE/DELETE): (role = 'admin') -- Only admins can manage role permissions
+ */
 export const rolePermissions = pgTable(
   "role_permissions",
   {

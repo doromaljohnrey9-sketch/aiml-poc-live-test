@@ -2,6 +2,13 @@ import { pgTable, text, uuid, integer, timestamp, index } from "drizzle-orm/pg-c
 import { distributionLogs } from "../distribution-logs/distribution-logs.schema";
 import { baseColumns } from "../base";
 
+/**
+ * ENGAGEMENT_METRICS TABLE
+ *
+ * RLS Policies:
+ * - SELECT: (true) -- Metrics are public/authenticated
+ * - WRITE (INSERT/UPDATE/DELETE): (authenticated() OR system) -- Authenticated users or system can record metrics
+ */
 export const engagementMetrics = pgTable("engagement_metrics", {
   ...baseColumns,
   distributionLogId: uuid("distribution_log_id").references(() => distributionLogs.id),

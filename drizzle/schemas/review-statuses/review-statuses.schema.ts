@@ -3,6 +3,13 @@ import { generatedContent } from "../generated-content/generated-content.schema"
 import { profiles } from "../profiles/profiles.schema";
 import { baseColumns } from "../base";
 
+/**
+ * REVIEW_STATUSES TABLE
+ *
+ * RLS Policies:
+ * - SELECT: (role IN ('admin', 'contributor', 'operator')) -- Internal roles can view reviews
+ * - WRITE (INSERT/UPDATE/DELETE): (role IN ('admin', 'operator')) -- Admin and operators can manage review statuses
+ */
 export const reviewStatuses = pgTable("review_statuses", {
   ...baseColumns,
   generatedContentId: uuid("generated_content_id").references(() => generatedContent.id),
