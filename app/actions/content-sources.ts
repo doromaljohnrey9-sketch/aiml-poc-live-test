@@ -4,7 +4,8 @@ import { requireRole } from "@/lib/guards/role.guard";
 import { ROLES } from "@/drizzle/constants/roles-permissions.constant";
 import { db } from "@/lib/drizzle/db";
 import { contentSources } from "@/drizzle/schemas";
-import { eq } from "drizzle-orm";
+import { eq, count } from "drizzle-orm";
+import { extractFromUrl } from "@/services/tavily.service";
 import type {
   ContentSource,
   ContentSourceInput,
@@ -55,26 +56,80 @@ export async function createContentSource(input: ContentSourceInput): Promise<Co
   };
 }
 
-export async function getMyContentSources(): Promise<ContentSource[]> {
+export async function getMyContentSources(params?: {
+  page?: number;
+  pageSize?: number;
+  search?: string;
+  status?: string;
+  language?: string;
+}): Promise<{ data: ContentSource[]; total: number }> {
   const user = await requireRole(ROLES.CONTRIBUTOR);
 
-  const rows = await db
-    .select()
+  const page = params?.page || 1;
+  const pageSize = params?.pageSize || 10;
+  const offset = (page - 1) * pageSize;
+
+  // Build where conditions
+  const conditions = [eq(contentSources.submittedBy, user.id)];
+
+  if (params?.status && params.status !== "all") {
+    conditions.push(eq(contentSources.status, params.status));
+  }
+
+  if (params?.language && params.language !== "all") {
+    conditions.push(eq(contentSources.language, params.language));
+  }
+
+  // Get total count
+  const [{ value: totalCount }] = await db
+    .select({ value: count() })
     .from(contentSources)
     .where(eq(contentSources.submittedBy, user.id));
 
-  return rows.map((row) => ({
-    id: row.id,
-    submittedBy: row.submittedBy,
-    inputType: row.inputType as "url" | "text" | "document",
-    rawInput: row.rawInput,
-    extractedText: row.extractedText,
-    contextNote: row.contextNote,
-    language: row.language as "en" | "ko",
-    status: row.status as "pending" | "processing" | "processed" | "failed",
-    createdAt: row.createdAt?.toISOString() ?? new Date().toISOString(),
-    updatedAt: row.updatedAt?.toISOString() ?? new Date().toISOString(),
-  }));
+  // Get paginated data
+  const rows = await db
+    .select()
+    .from(contentSources)
+    .where(eq(contentSources.submittedBy, user.id))
+    .limit(pageSize)
+    .offset(offset)
+    .orderBy(contentSources.createdAt);
+
+  // Apply client-side filtering for search (simplified for PoC)
+  let filteredRows = rows;
+  if (params?.search) {
+    const searchLower = params.search.toLowerCase();
+    filteredRows = rows.filter(
+      (row) =>
+        row.rawInput?.toLowerCase().includes(searchLower) ||
+        row.contextNote?.toLowerCase().includes(searchLower)
+    );
+  }
+
+  // Apply client-side filtering for status and language (simplified for PoC)
+  if (params?.status && params.status !== "all") {
+    filteredRows = filteredRows.filter((row) => row.status === params.status);
+  }
+
+  if (params?.language && params.language !== "all") {
+    filteredRows = filteredRows.filter((row) => row.language === params.language);
+  }
+
+  return {
+    data: filteredRows.map((row) => ({
+      id: row.id,
+      submittedBy: row.submittedBy,
+      inputType: row.inputType as "url" | "text" | "document",
+      rawInput: row.rawInput,
+      extractedText: row.extractedText,
+      contextNote: row.contextNote,
+      language: row.language as "en" | "ko",
+      status: row.status as "pending" | "processing" | "processed" | "failed",
+      createdAt: row.createdAt?.toISOString() ?? new Date().toISOString(),
+      updatedAt: row.updatedAt?.toISOString() ?? new Date().toISOString(),
+    })),
+    total: Number(totalCount) || 0,
+  };
 }
 
 export async function getContentSourceDetail(id: string): Promise<ContentSource | null> {
@@ -101,17 +156,10 @@ export async function getContentSourceDetail(id: string): Promise<ContentSource 
   };
 }
 
-export async function previewScrape(_input: PreviewScrapeInput): Promise<PreviewScrapeResult> {
+export async function previewScrape(input: PreviewScrapeInput): Promise<PreviewScrapeResult> {
   await requireRole(ROLES.CONTRIBUTOR);
 
-  // TODO: Implement Tavily API call
-  // - Validate URL format
-  // - Call Tavily API to extract text
-  // - Return { extractedText, confidence }
-  // - Handle errors gracefully
+  const result = await extractFromUrl(input.url);
 
-  return {
-    extractedText: "",
-    error: "Tavily integration not yet implemented",
-  };
+  return result;
 }
