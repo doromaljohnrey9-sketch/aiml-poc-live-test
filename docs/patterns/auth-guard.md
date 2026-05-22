@@ -48,7 +48,7 @@ export async function requireAuth(): Promise<{
 ## Usage
 
 ```typescript
-// app/api/users/me/route.ts
+// app/api/protected/route.ts
 import { requireAuth } from "@/lib/guards/auth.guard";
 
 export async function GET() {
@@ -56,10 +56,10 @@ export async function GET() {
   if (error) return error;
 
   // user is guaranteed to be defined here
-  const profile = await db.select().from(profiles).where(eq(profiles.id, user.id)).limit(1);
+  const row = await db.select().from(exampleTable).limit(1);
 
   return apiResponse({
-    data: profile[0] ?? null,
+    data: row[0] ?? null,
     status: HttpStatus.OK,
   });
 }

@@ -9,13 +9,19 @@ import { baseColumns } from "../base";
  * - SELECT: (true) -- Metrics are public/authenticated
  * - WRITE (INSERT/UPDATE/DELETE): (authenticated() OR system) -- Authenticated users or system can record metrics
  */
-export const engagementMetrics = pgTable("engagement_metrics", {
-  ...baseColumns,
-  distributionLogId: uuid("distribution_log_id").references(() => distributionLogs.id),
-  channel: text("channel").notNull(),
-  metricType: text("metric_type").notNull(), // 'view' | 'click' | 'reaction' | 'open' | 'inquiry'
-  value: integer("value").default(0),
-  recordedAt: timestamp("recorded_at").defaultNow(),
-}, (table) => ({
-  distributionLogIdIdx: index("engagement_metrics_distribution_log_id_idx").on(table.distributionLogId),
-}));
+export const engagementMetrics = pgTable(
+  "engagement_metrics",
+  {
+    ...baseColumns,
+    distributionLogId: uuid("distribution_log_id").references(() => distributionLogs.id),
+    channel: text("channel").notNull(),
+    metricType: text("metric_type").notNull(), // 'view' | 'click' | 'reaction' | 'open' | 'inquiry'
+    value: integer("value").default(0),
+    recordedAt: timestamp("recorded_at").defaultNow(),
+  },
+  (table) => ({
+    distributionLogIdIdx: index("engagement_metrics_distribution_log_id_idx").on(
+      table.distributionLogId
+    ),
+  })
+);

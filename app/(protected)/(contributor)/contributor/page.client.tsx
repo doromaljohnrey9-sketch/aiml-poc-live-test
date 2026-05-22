@@ -1,18 +1,18 @@
 "use client";
 
 import { useAuth } from "@/hooks/use-auth";
-import { 
-  Empty, 
-  EmptyHeader, 
-  EmptyTitle, 
-  EmptyDescription, 
-  EmptyMedia 
+import {
+  Empty,
+  EmptyHeader,
+  EmptyTitle,
+  EmptyDescription,
+  EmptyMedia,
 } from "@/components/ui/empty";
 import { FilePlus2 } from "lucide-react";
 
 export default function ContributorPageClient() {
   const { profile, isLoading, user } = useAuth();
-  
+
   const name = profile?.name || user?.email?.split("@")[0] || "User";
 
   return (
@@ -24,7 +24,8 @@ export default function ContributorPageClient() {
         <EmptyHeader>
           <EmptyTitle>Welcome, {isLoading ? "..." : name}!</EmptyTitle>
           <EmptyDescription>
-            You are logged in as a <strong>Contributor</strong>. This is where you contribute and manage content sources for the AIML pipeline.
+            You are logged in as a <strong>Contributor</strong>. This is where you contribute and
+            manage content sources for the AIML pipeline.
           </EmptyDescription>
         </EmptyHeader>
       </Empty>

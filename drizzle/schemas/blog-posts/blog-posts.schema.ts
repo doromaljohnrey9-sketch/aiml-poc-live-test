@@ -9,14 +9,20 @@ import { baseColumns } from "../base";
  * - SELECT: (status = 'published' OR role IN ('admin', 'contributor')) -- Published posts are public; drafts for admin/authors
  * - WRITE (INSERT/UPDATE/DELETE): (role IN ('admin', 'contributor')) -- Admins and contributors can manage posts
  */
-export const blogPosts = pgTable("blog_posts", {
-  ...baseColumns,
-  generatedContentId: uuid("generated_content_id").references(() => generatedContent.id),
-  title: text("title").notNull(),
-  slug: text("slug").unique().notNull(),
-  content: text("content").notNull(),
-  status: text("status").notNull().default("draft"), // 'draft' | 'published'
-  publishedAt: timestamp("published_at"),
-}, (table) => ({
-  generatedContentIdIdx: index("blog_posts_generated_content_id_idx").on(table.generatedContentId),
-}));
+export const blogPosts = pgTable(
+  "blog_posts",
+  {
+    ...baseColumns,
+    generatedContentId: uuid("generated_content_id").references(() => generatedContent.id),
+    title: text("title").notNull(),
+    slug: text("slug").unique().notNull(),
+    content: text("content").notNull(),
+    status: text("status").notNull().default("draft"), // 'draft' | 'published'
+    publishedAt: timestamp("published_at"),
+  },
+  (table) => ({
+    generatedContentIdIdx: index("blog_posts_generated_content_id_idx").on(
+      table.generatedContentId
+    ),
+  })
+);

@@ -98,7 +98,7 @@ components/providers/ → React context providers (registered in root layout)
 | Components    | `component-name.tsx` | `password-input.tsx`                          |
 | Client pages  | `page.client.tsx`    | `app/(auth)/login/page.client.tsx`            |
 | Hooks         | `use-hook-name.ts`   | `hooks/use-auth.ts`                           |
-| Services      | `name.service.ts`    | `services/users.service.ts`                   |
+| Services      | `name.service.ts`    | `services/mail.service.ts`                    |
 | Query options | `name.query.ts`      | `queries/user.query.ts`                       |
 | Constants     | `name.constant.ts`   | `constants/seo.constant.ts`                   |
 | DB schemas    | `name.schema.ts`     | `drizzle/schemas/profiles/profiles.schema.ts` |
@@ -177,7 +177,7 @@ Optional services degrade gracefully when env vars are not set.
 
 1. Choose route group: `(public)`, `(auth)`, or `(protected)`
 2. Create `page.tsx` (server entry + metadata) + `page.client.tsx` (client logic)
-3. If data needed: add API route → service → query options
+3. If data needed: add API route or server action → query options
 4. If protected: add to `PROTECTED_ROUTES` in `constants/routes.constant.ts`
 5. If sidebar nav: update `constants/app-sidebar-items.constant.ts`
 6. Add tests in `tests/unit/` or `tests/e2e/`
@@ -196,7 +196,7 @@ Optional services degrade gracefully when env vars are not set.
 ## Pitfalls
 
 - **"Always redirected to /login"** — route matches `PROTECTED_ROUTE_PATTERNS`; check session in middleware
-- **"Profile data null in sidebar"** — `/api/users/me` needs matching `profiles` row in DB
+- **"Profile data null in sidebar"** — `useAuth()` uses `getCurrentUserProfile()` from `app/actions/users.ts`, and it still requires a matching `profiles` row in DB
 - **"Build env errors"** — verify required env vars in `.env` and CI secrets
 - **"Playwright fails locally"** — run `pnpm exec playwright install --with-deps` first
 - **Don't modify `components/ui/`** — wrap or extend in `components/shared/` instead

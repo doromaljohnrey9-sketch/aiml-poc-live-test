@@ -126,11 +126,11 @@ supabase stop
 
 ### Route Groups
 
-| Group         | Purpose                         | Paths                                                        |
-| ------------- | ------------------------------- | ------------------------------------------------------------ |
-| `(public)`    | Landing page                    | `/`                                                          |
-| `(auth)`      | Authentication                  | `/login`, `/register`, `/forgot-password`, `/reset-password` |
-| `(protected)` | AIML Pipeline (auth-gated)      | `/admin`, `/contributor`, `/operator`                        |
+| Group         | Purpose                    | Paths                                                        |
+| ------------- | -------------------------- | ------------------------------------------------------------ |
+| `(public)`    | Landing page               | `/`                                                          |
+| `(auth)`      | Authentication             | `/login`, `/register`, `/forgot-password`, `/reset-password` |
+| `(protected)` | AIML Pipeline (auth-gated) | `/admin`, `/contributor`, `/operator`                        |
 
 - **Admin**: CEO/Lead view for pipeline status and global configuration.
 - **Contributor**: Internal staff view for submitting content sources.
@@ -204,26 +204,7 @@ Add routes to `PROTECTED_ROUTES` — wildcard patterns are derived automatically
 
 ### API Layer
 
-All API endpoints use `apiResponse()` for a consistent response format:
-
-```typescript
-// app/api/users/me/route.ts
-import { apiResponse } from "@/lib/response";
-import { requireAuth } from "@/lib/guards/auth.guard";
-import { HttpStatus } from "@/constants/http-status.constant";
-
-export async function GET() {
-  const { user, error } = await requireAuth();
-  if (error) return error;
-
-  const profile = await db.select().from(profiles).where(eq(profiles.id, user.id)).limit(1);
-
-  return apiResponse({
-    data: profile[0] ?? null,
-    status: HttpStatus.OK,
-  });
-}
-```
+Public API endpoints like `app/api/mail/send/route.ts` and `app/api/healthcheck/route.ts` use `apiResponse()` for a consistent response format.
 
 Response shape:
 
@@ -239,32 +220,23 @@ See [API Response Pattern →](./patterns/api-response) for details.
 
 ## Data Fetching
 
-Three-layer pattern: **Service → Query Options → Component**
+The current user profile is fetched via a server action instead of a separate API route and service.
+
+- `app/actions/users.ts` exports `getCurrentUserProfile()`.
+- `queries/user.query.ts` uses `getCurrentUserProfile()` as the `queryFn`.
 
 ```typescript
-// 1. Service — services/users.service.ts
-export const usersService = {
-  me: async (): Promise<SelectProfile | null> => {
-    try {
-      const response = await axiosInstance.get<{ data: SelectProfile | null }>(API_ROUTES.USERS.ME);
-      return response.data.data ?? null;
-    } catch (error) {
-      console.error("Failed to fetch user profile:", error);
-      return null;
-    }
-  },
-};
+import { getCurrentUserProfile } from "@/app/actions/users";
+import { getQueryKey } from "@/lib/query/get-query-keys";
 
-// 2. Query Options — queries/user.query.ts
 export const getUserQueryOptions = () =>
   queryOptions({
     queryKey: getQueryKey.users.me(),
-    queryFn: () => usersService.me(),
+    queryFn: () => getCurrentUserProfile(),
   });
-
-// 3. Component — use via useQuery or the useAuth hook
-const { data: profile, isLoading } = useQuery(getUserQueryOptions());
 ```
+
+Then consume the query from `useQuery(getUserQueryOptions())` or via `useAuth()`.
 
 See [Query Keys Pattern →](./patterns/query-keys) for cache management.
 

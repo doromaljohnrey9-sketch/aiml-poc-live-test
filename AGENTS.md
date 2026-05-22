@@ -105,7 +105,7 @@ The initial migration (`drizzle/migrations/0000_InitialCreate.sql`) creates the 
 3. (Optional) Add seed data via SQL, Drizzle Studio, or a custom script
 4. (Optional) If you want automatic profile creation on sign-up, add the `handle_new_user` trigger manually via Supabase SQL Editor (see `docs/overview.md`, "Profiles trigger")
 
-Note: The `/api/users/me` endpoint expects a `profiles` record matching the Supabase user ID. Without the trigger, you must create this row yourself.
+Note: The current profile flow fetches data via `app/actions/users.ts`. A matching `profiles` row is still required for each Supabase user ID.
 
 ## Run/Test/Lint/Build Commands
 
@@ -192,7 +192,7 @@ No deployment automation is currently configured. The CI validates code quality 
 - Route files use Next.js App Router conventions (`app/**/page.tsx`, `app/**/layout.tsx`).
 - Interactive route logic is commonly split into `page.client.tsx` (`app/(auth)/*/page.client.tsx`).
 - Domain suffixes:
-  - `*.service.ts` for fetch/API client logic (`services/users.service.ts`)
+  - `*.service.ts` for API client wrappers such as `services/mail.service.ts`
   - `*.query.ts` for TanStack query options (`queries/user.query.ts`)
   - `*.constant.ts` for constants (`constants/*.constant.ts`)
   - `use-*.ts` hooks (`hooks/use-auth.ts`, `hooks/use-mobile.ts`)
@@ -200,7 +200,7 @@ No deployment automation is currently configured. The CI validates code quality 
 ### Error Handling Patterns
 
 - Client actions: place try/catch inside `startTransition` async callbacks and show toast notifications (`app/(auth)/*/page.client.tsx`).
-- API routes: return structured JSON with proper HTTP status and avoid leaking stack traces (`app/api/users/me/route.ts`, `app/api/mail/send/route.ts`).
+- API routes: return structured JSON with proper HTTP status and avoid leaking stack traces (`app/api/mail/send/route.ts`, `app/api/healthcheck/route.ts`).
 
 ## Repository Conventions
 
@@ -277,8 +277,8 @@ No deployment automation is currently configured. The CI validates code quality 
 1. Update schema in `drizzle/schemas/**`.
 2. Generate migration with `pnpm db:migrate` and inspect SQL under `drizzle/migrations/`.
 3. Apply migration via `pnpm db:update` (or `pnpm db:push` in development workflows).
-4. Update affected types/services/routes (`types/drizzle.types.ts`, `services/*`, `app/api/*`).
-5. Validate `/api/users/me` and related UI (`components/app-sidebar/*`, `hooks/use-auth.ts` via `useAuth`).
+4. Update affected types/services/routes (`types/drizzle.types.ts`, `services/*`, `app/api/*`, `app/actions/*`).
+5. Validate the action-based user profile flow (`app/actions/users.ts`, `queries/user.query.ts`, `hooks/use-auth.ts` via `useAuth`).
 
 ## Troubleshooting & FAQs
 
@@ -288,7 +288,7 @@ No deployment automation is currently configured. The CI validates code quality 
 
 ### “Why is profile data null in the dashboard/sidebar?”
 
-- `/api/users/me` looks up `profiles` row by Supabase user id (`app/api/users/me/route.ts`).
+- `useAuth()` fetches the current profile via `queries/user.query.ts` and `app/actions/users.ts`.
 - `pnpm db:push` does not create database triggers/functions. If you rely on automatic profile creation, add the `on_auth_user_created` trigger manually (see the "Profiles trigger" section in `docs/overview.md`).
 - For users created before the trigger existed, manually insert a `profiles` row matching the Supabase user ID.
 
@@ -345,9 +345,9 @@ No deployment automation is currently configured. The CI validates code quality 
 | Components      | `component-name.tsx`                                 | `password-input.tsx`                          |
 | Pages           | `page.tsx`, `layout.tsx`, `loading.tsx`, `error.tsx` | `app/(auth)/login/page.tsx`                   |
 | Client pages    | `page.client.tsx`                                    | `app/(auth)/login/page.client.tsx`            |
-| API routes      | `route.ts`                                           | `app/api/users/me/route.ts`                   |
+| API routes      | `route.ts`                                           | `app/api/mail/send/route.ts`                  |
 | Hooks           | `use-hook-name.ts`                                   | `hooks/use-auth.ts`                           |
-| Services        | `name.service.ts`                                    | `services/users.service.ts`                   |
+| Services        | `name.service.ts`                                    | `services/mail.service.ts`                    |
 | Query options   | `name.query.ts`                                      | `queries/user.query.ts`                       |
 | Constants       | `name.constant.ts`                                   | `constants/seo.constant.ts`                   |
 | Drizzle schemas | `name.schema.ts`                                     | `drizzle/schemas/profiles/profiles.schema.ts` |
@@ -724,7 +724,7 @@ export async function getSupabaseServer() {
 ### Authentication in API Routes
 
 ```typescript
-// Pattern used in app/api/users/me/route.ts and app/api/mail/send/route.ts
+// Pattern used in app/api/mail/send/route.ts and app/api/healthcheck/route.ts
 // Via the requireAuth() guard in lib/guards/auth.guard.ts:
 const { user, error } = await requireAuth();
 if (error) return error;
@@ -780,19 +780,16 @@ Component (via useQuery or useAuth hook)
 ```
 
 ```typescript
-// 1. Service — services/users.service.ts
-export const usersService = {
-  me: async (): Promise<SelectProfile | null> => {
-    const response = await axiosInstance.get(API_ROUTES.USERS.ME);
-    return response.data;
-  },
-};
+// 1. Action — app/actions/users.ts
+export async function getCurrentUserProfile(): Promise<SelectProfile | null> {
+  return getCurrentUserProfile();
+}
 
 // 2. Query Options — queries/user.query.ts
 export const getUserQueryOptions = () =>
   queryOptions({
     queryKey: getQueryKey.users.me(), // ["users", "me"]
-    queryFn: () => usersService.me(),
+    queryFn: () => getCurrentUserProfile(),
   });
 
 // 3. Component — via useAuth() hook or direct useQuery
@@ -882,15 +879,10 @@ try {
 ### Service Layer
 
 ```typescript
-// services/users.service.ts pattern
-export const usersService = {
-  me: async (): Promise<SelectProfile | null> => {
-    try {
-      const response = await axiosInstance.get<{ data: SelectProfile | null }>(API_ROUTES.USERS.ME);
-      return response.data.data ?? null;
-    } catch {
-      return null;
-    }
+// services/mail.service.ts pattern
+export const mailService = {
+  send: async (payload: SendMailPayload) => {
+    await axiosInstance.post(API_ROUTES.MAIL.SEND, payload);
   },
 };
 ```

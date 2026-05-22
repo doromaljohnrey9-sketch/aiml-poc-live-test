@@ -14,7 +14,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { PasswordInput } from "@/components/shared/password-input";
 
 import { getSupabaseClient } from "@/lib/supabase/client";
-import { usersService } from "@/services/users.service";
+import { getCurrentUserProfile } from "@/app/actions/users";
 
 import { loginSchema, type LoginFormValues } from "@/schemas/auth.schema";
 
@@ -50,7 +50,7 @@ export const PageClient = () => {
           description: "You have been logged in successfully.",
         });
 
-        const profile = await usersService.me();
+        const profile = await getCurrentUserProfile();
         const role = profile?.role;
         const redirectPath = role
           ? (ROLE_REDIRECTS[role] ?? DEFAULT_AUTH_REDIRECT)
