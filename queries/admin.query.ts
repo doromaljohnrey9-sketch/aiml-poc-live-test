@@ -26,8 +26,14 @@ export const getAdminSystemConfigQueryOptions = () =>
     queryFn: () => getAdminSystemConfig(),
   });
 
-export const getAdminUsersQueryOptions = () =>
+export const getAdminUsersQueryOptions = (params?: {
+  page?: number;
+  pageSize?: number;
+  search?: string;
+  role?: string;
+  isActive?: boolean;
+}) =>
   queryOptions({
-    queryKey: getQueryKey.admin.users(),
-    queryFn: () => getAdminUsers(),
+    queryKey: [...getQueryKey.admin.users(), params],
+    queryFn: () => getAdminUsers(params),
   });

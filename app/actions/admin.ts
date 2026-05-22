@@ -1,6 +1,6 @@
 "use server";
 
-import { count, desc, eq } from "drizzle-orm";
+import { and, count, desc, eq, like, or } from "drizzle-orm";
 
 import { db } from "@/lib/drizzle/db";
 import { requireRole } from "@/lib/guards/role.guard";
@@ -218,8 +218,41 @@ export async function getAdminSystemConfig(): Promise<AdminSystemConfigItem[]> {
   }));
 }
 
-export async function getAdminUsers(): Promise<AdminUser[]> {
+export async function getAdminUsers(params?: {
+  page?: number;
+  pageSize?: number;
+  search?: string;
+  role?: string;
+  isActive?: boolean;
+}): Promise<{ data: AdminUser[]; total: number }> {
   await requireRole(ROLES.ADMIN);
+
+  const page = params?.page ?? 1;
+  const pageSize = params?.pageSize ?? 10;
+  const offset = (page - 1) * pageSize;
+
+  const conditions = [];
+
+  if (params?.search) {
+    const searchTerm = `%${params.search}%`;
+    conditions.push(or(like(profiles.name, searchTerm), like(users.email, searchTerm)));
+  }
+
+  if (params?.role) {
+    conditions.push(eq(roles.name, params.role));
+  }
+
+  if (params?.isActive !== undefined) {
+    conditions.push(eq(profiles.isActive, params.isActive));
+  }
+
+  const [totalRows] = await db
+    .select({ count: count() })
+    .from(profiles)
+    .leftJoin(userRoles, eq(profiles.id, userRoles.userId))
+    .leftJoin(roles, eq(userRoles.roleId, roles.id))
+    .leftJoin(users, eq(profiles.id, users.id))
+    .where(conditions.length > 0 ? and(...conditions) : undefined);
 
   const rows = await db
     .select({
@@ -235,17 +268,23 @@ export async function getAdminUsers(): Promise<AdminUser[]> {
     .leftJoin(userRoles, eq(profiles.id, userRoles.userId))
     .leftJoin(roles, eq(userRoles.roleId, roles.id))
     .leftJoin(users, eq(profiles.id, users.id))
-    .orderBy(desc(profiles.createdAt));
+    .where(conditions.length > 0 ? and(...conditions) : undefined)
+    .orderBy(desc(profiles.createdAt))
+    .limit(pageSize)
+    .offset(offset);
 
-  return rows.map((row) => ({
-    id: row.id,
-    name: row.name,
-    email: row.email,
-    role: row.role,
-    isActive: Boolean(row.isActive),
-    createdAt: toISOString(row.createdAt),
-    updatedAt: toISOString(row.updatedAt),
-  }));
+  return {
+    data: rows.map((row) => ({
+      id: row.id,
+      name: row.name,
+      email: row.email,
+      role: row.role,
+      isActive: Boolean(row.isActive),
+      createdAt: toISOString(row.createdAt),
+      updatedAt: toISOString(row.updatedAt),
+    })),
+    total: Number(totalRows.count),
+  };
 }
 
 export async function addAdminBannedPhrase(phrase: string): Promise<AdminBannedPhrase> {
