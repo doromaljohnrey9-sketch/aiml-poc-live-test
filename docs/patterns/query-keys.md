@@ -48,12 +48,12 @@ Define query behavior alongside cache keys:
 // queries/user.query.ts
 import { queryOptions } from "@tanstack/react-query";
 import { getQueryKey } from "@/lib/query/get-query-keys";
-import { usersService } from "@/services/users.service";
+import { getCurrentUserProfile } from "@/app/actions/users";
 
 export const getUserQueryOptions = () =>
   queryOptions({
     queryKey: getQueryKey.users.me(),
-    queryFn: () => usersService.me(),
+    queryFn: () => getCurrentUserProfile(),
   });
 ```
 
@@ -92,7 +92,7 @@ const queryClient = useQueryClient();
 
 const { mutate: updateProfile } = useMutation({
   mutationFn: async (data) => {
-    const response = await fetch("/api/users/me", {
+    const response = await fetch("/api/profile", {
       method: "PATCH",
       body: JSON.stringify(data),
     });

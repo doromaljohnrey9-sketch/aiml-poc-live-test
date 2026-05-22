@@ -16,6 +16,7 @@ The AIML System is designed to solve the problem of sustained inbound marketing 
 ## Architecture
 
 The system is built on a modern, high-performance stack:
+
 - **Framework**: Next.js 16 (App Router)
 - **Database**: Supabase + Postgres
 - **ORM**: Drizzle ORM

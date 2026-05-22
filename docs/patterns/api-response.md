@@ -96,7 +96,7 @@ return apiResponse({
 ### Complete Endpoint
 
 ```typescript
-// app/api/users/me/route.ts
+// app/api/example/route.ts
 import { apiResponse } from "@/lib/response";
 import { requireAuth } from "@/lib/guards/auth.guard";
 import { HttpStatus } from "@/constants/http-status.constant";
@@ -105,10 +105,10 @@ export async function GET() {
   const { user, error } = await requireAuth();
   if (error) return error;
 
-  const profile = await db.select().from(profiles).where(eq(profiles.id, user.id)).limit(1);
+  const data = await db.select().from(exampleTable).limit(1);
 
   return apiResponse({
-    data: profile[0] ?? null,
+    data: data[0] ?? null,
     status: HttpStatus.OK,
   });
 }
@@ -117,16 +117,13 @@ export async function GET() {
 ### Client-Side Handling
 
 ```typescript
-// services/users.service.ts
-export const usersService = {
-  me: async (): Promise<SelectProfile | null> => {
-    try {
-      const response = await axiosInstance.get<{ data: SelectProfile | null }>(API_ROUTES.USERS.ME);
-      return response.data.data ?? null;
-    } catch (error) {
-      console.error("Failed to fetch user profile:", error);
-      return null;
-    }
+// services/mail.service.ts
+import { axiosInstance } from "@/config/axios.config";
+import { API_ROUTES } from "@/constants/routes.constant";
+
+export const mailService = {
+  send: async (payload: SendMailPayload) => {
+    await axiosInstance.post(API_ROUTES.MAIL.SEND, payload);
   },
 };
 ```

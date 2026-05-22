@@ -18,7 +18,7 @@ import { NavUser } from "@/components/app-sidebar/nav-user";
 import { NavItems } from "./nav-items";
 import { NavLoader } from "./nav-loader";
 
-import { ROLE_SIDEBAR_DATA, SECONDARY_SIDEBAR_ITEMS } from "@/constants/app-sidebar-items.constant";
+import { ROLE_SIDEBAR_DATA } from "@/constants/app-sidebar-items.constant";
 
 import { useQueryClient } from "@tanstack/react-query";
 import { getSupabaseClient } from "@/lib/supabase/client";
@@ -70,16 +70,7 @@ export const AppSidebar = ({ ...props }: React.ComponentProps<typeof Sidebar>) =
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        {isLoading ? (
-          <NavLoader />
-        ) : (
-          sidebarData && (
-            <>
-              <NavItems {...sidebarData.platform} />
-            </>
-          )
-        )}
-        <NavItems {...SECONDARY_SIDEBAR_ITEMS} className="mt-auto" />
+        {isLoading ? <NavLoader /> : sidebarData && <NavItems {...sidebarData.platform} />}
       </SidebarContent>
       <SidebarFooter>
         <NavUser

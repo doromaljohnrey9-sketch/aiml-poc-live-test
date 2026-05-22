@@ -1,18 +1,18 @@
 "use client";
 
 import { useAuth } from "@/hooks/use-auth";
-import { 
-  Empty, 
-  EmptyHeader, 
-  EmptyTitle, 
-  EmptyDescription, 
-  EmptyMedia 
+import {
+  Empty,
+  EmptyHeader,
+  EmptyTitle,
+  EmptyDescription,
+  EmptyMedia,
 } from "@/components/ui/empty";
 import { ClipboardCheck } from "lucide-react";
 
 export default function OperatorPageClient() {
   const { profile, isLoading, user } = useAuth();
-  
+
   const name = profile?.name || user?.email?.split("@")[0] || "User";
 
   return (
@@ -24,7 +24,8 @@ export default function OperatorPageClient() {
         <EmptyHeader>
           <EmptyTitle>Welcome, {isLoading ? "..." : name}!</EmptyTitle>
           <EmptyDescription>
-            You are logged in as an <strong>Operator</strong>. This is your control hub for reviewing AI-generated content and managing distribution.
+            You are logged in as an <strong>Operator</strong>. This is your control hub for
+            reviewing AI-generated content and managing distribution.
           </EmptyDescription>
         </EmptyHeader>
       </Empty>

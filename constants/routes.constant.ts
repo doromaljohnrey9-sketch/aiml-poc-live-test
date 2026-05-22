@@ -16,9 +16,6 @@ export const PROTECTED_ROUTES = {
 } as const;
 
 export const API_ROUTES = {
-  USERS: {
-    ME: "/api/users/me",
-  },
   MAIL: {
     SEND: "/api/mail/send",
   },

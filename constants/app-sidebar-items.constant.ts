@@ -43,10 +43,9 @@ export const ROLE_SIDEBAR_DATA: Record<string, RoleSidebarData> = {
     platform: {
       title: "Admin Panel",
       items: [
-        { name: "Pipeline Status", url: "/admin/pipeline", icon: PieChartIcon },
-        { name: "User Management", url: "/admin/users", icon: UsersIcon },
-        { name: "Banned Phrases", url: "/admin/banned-phrases", icon: ShieldCheckIcon },
-        { name: "System Settings", url: "/admin/settings", icon: TerminalIcon },
+        { name: "Dashboard", url: "/admin", icon: PieChartIcon },
+        { name: "Users", url: "/admin/users", icon: UsersIcon },
+        { name: "Settings", url: "/admin/settings", icon: TerminalIcon },
       ],
     },
   },
@@ -70,20 +69,4 @@ export const ROLE_SIDEBAR_DATA: Record<string, RoleSidebarData> = {
       ],
     },
   },
-};
-
-export const SECONDARY_SIDEBAR_ITEMS: SidebarGroup<NavItem> = {
-  title: "Support",
-  items: [
-    {
-      name: "Feedback",
-      url: "#",
-      icon: SendIcon,
-    },
-    {
-      name: "Help Center",
-      url: "#",
-      icon: LibraryIcon,
-    },
-  ],
 };

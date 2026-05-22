@@ -11,8 +11,8 @@ export default function NotFound() {
           <h1 className="text-8xl font-bold tracking-tighter text-muted-foreground/20">404</h1>
           <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">Page not found</h2>
           <p className="mx-auto max-w-[400px] text-muted-foreground text-sm sm:text-base">
-            Sorry, we couldn&apos;t find the page you&apos;re looking for. It might have been moved or
-            deleted.
+            Sorry, we couldn&apos;t find the page you&apos;re looking for. It might have been moved
+            or deleted.
           </p>
         </div>
         <div className="flex justify-center gap-4">

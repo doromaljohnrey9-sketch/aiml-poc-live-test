@@ -11,7 +11,9 @@ Hardcoded route strings make refactoring painful and error-prone:
 <Link href="/admin">Admin Overview</Link>
 <Link href="/operator">Operator Logs</Link>
 
-const response = await fetch("/api/users/me");
+import { API_ROUTES } from "@/constants/routes.constant";
+
+const response = await fetch(API_ROUTES.HEALTHCHECK);
 const redirectUrl = "/login";
 ```
 
@@ -48,9 +50,6 @@ export const PROTECTED_ROUTES = {
 
 // API routes
 export const API_ROUTES = {
-  USERS: {
-    ME: "/api/users/me",
-  },
   MAIL: {
     SEND: "/api/mail/send",
   },
@@ -86,13 +85,12 @@ export async function proxy(request: NextRequest) {
 ### In Services
 
 ```typescript
-// services/users.service.ts
+// services/mail.service.ts
 import { API_ROUTES } from "@/constants/routes.constant";
 
-export const usersService = {
-  me: async (): Promise<SelectProfile | null> => {
-    const response = await axiosInstance.get<{ data: SelectProfile | null }>(API_ROUTES.USERS.ME);
-    return response.data.data ?? null;
+export const mailService = {
+  send: async (payload: SendMailPayload) => {
+    await axiosInstance.post(API_ROUTES.MAIL.SEND, payload);
   },
 };
 ```

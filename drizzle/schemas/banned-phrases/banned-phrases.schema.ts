@@ -9,10 +9,14 @@ import { baseColumns } from "../base";
  * - SELECT: (authenticated()) -- Authenticated users can read banned phrases for validation
  * - WRITE (INSERT/UPDATE/DELETE): (role = 'admin') -- Only admins can manage banned phrases
  */
-export const bannedPhrases = pgTable("banned_phrases", {
-  ...baseColumns,
-  phrase: text("phrase").notNull(),
-  addedBy: uuid("added_by").references(() => profiles.id),
-}, (table) => ({
-  addedByIdx: index("banned_phrases_added_by_idx").on(table.addedBy),
-}));
+export const bannedPhrases = pgTable(
+  "banned_phrases",
+  {
+    ...baseColumns,
+    phrase: text("phrase").notNull(),
+    addedBy: uuid("added_by").references(() => profiles.id),
+  },
+  (table) => ({
+    addedByIdx: index("banned_phrases_added_by_idx").on(table.addedBy),
+  })
+);
