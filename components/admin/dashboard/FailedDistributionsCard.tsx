@@ -62,7 +62,7 @@ export function FailedDistributionsCard({ failedDistributions }: FailedDistribut
           </div>
         ) : (
           <div className="flex flex-col items-center justify-center py-8 text-center">
-            <CheckCircleIcon className="h-8 w-8 text-green-500 mb-2" />
+            <CheckCircleIcon className="h-8 w-8 text-primary mb-2" />
             <p className="text-sm text-muted-foreground">No failed distributions</p>
           </div>
         )}

@@ -1,7 +1,7 @@
 "use client";
 
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
-import { ActivityIcon } from "lucide-react";
+import { LinkedinIcon, FileTextIcon, MailIcon } from "lucide-react";
 import type { AdminDashboardSummary } from "@/types/admin.types";
 
 interface ChannelActivityCardProps {
@@ -21,24 +21,26 @@ export function ChannelActivityCard({ channelActivity }: ChannelActivityCardProp
         <div className="space-y-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <ActivityIcon className="h-4 w-4 text-blue-500" />
+              <LinkedinIcon className="h-4 w-4 text-primary" />
               <span className="text-sm">LinkedIn</span>
             </div>
-            <span className="text-sm font-medium">{activity.linkedin}</span>
+            <span className="text-sm text-muted-foreground">Coming Soon</span>
           </div>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <ActivityIcon className="h-4 w-4 text-green-500" />
+              <FileTextIcon className="h-4 w-4 text-primary" />
               <span className="text-sm">Blog</span>
             </div>
-            <span className="text-sm font-medium">{activity.blog}</span>
+            <span className="text-sm text-muted-foreground">Coming Soon</span>
           </div>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <ActivityIcon className="h-4 w-4 text-purple-500" />
+              <MailIcon className="h-4 w-4 text-primary" />
               <span className="text-sm">Newsletter</span>
             </div>
-            <span className="text-sm font-medium">{activity.newsletter}</span>
+            <span className="text-sm font-medium">
+              {activity.newsletter === 0 ? "-" : activity.newsletter}
+            </span>
           </div>
         </div>
       </CardContent>

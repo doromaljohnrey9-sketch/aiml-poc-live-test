@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { AlertCircleIcon } from "lucide-react";
 import Link from "next/link";
 
-export default function Error({
+export default function AdminSettingsError({
   reset,
 }: {
   error: Error & { digest?: string };
@@ -17,20 +17,20 @@ export default function Error({
         <CardHeader>
           <div className="flex items-center gap-2">
             <AlertCircleIcon className="h-5 w-5 text-destructive" />
-            <CardTitle className="text-destructive">Dashboard Error</CardTitle>
+            <CardTitle className="text-destructive">Settings Error</CardTitle>
           </div>
         </CardHeader>
         <CardContent className="space-y-4">
           <p className="text-muted-foreground">
-            Failed to load the admin dashboard. This may be due to a permissions issue or a
-            temporary server error.
+            Failed to load admin settings. This may be due to a permissions issue or a temporary
+            server error.
           </p>
           <div className="flex gap-2">
             <Button onClick={reset} variant="outline">
               Try Again
             </Button>
             <Button asChild variant="ghost">
-              <Link href="/">Back to Home</Link>
+              <Link href="/admin">Back to Dashboard</Link>
             </Button>
           </div>
         </CardContent>

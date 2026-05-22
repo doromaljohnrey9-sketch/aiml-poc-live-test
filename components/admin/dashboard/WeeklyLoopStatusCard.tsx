@@ -33,12 +33,38 @@ export function WeeklyLoopStatusCard({ loopStatus }: WeeklyLoopStatusCardProps) 
         </div>
       </CardHeader>
       <CardContent className="space-y-4">
+        <div className="rounded-lg border bg-muted/50 p-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-muted-foreground">
+                Items Processed (Last Run)
+              </p>
+              <p className="text-3xl font-bold">
+                {status.itemsProcessed === 0 ? "-" : status.itemsProcessed}
+              </p>
+            </div>
+            <div className="space-y-1 text-right">
+              <p className="text-sm font-medium">Supported Languages</p>
+              <div className="flex flex-wrap gap-1 justify-end">
+                {status.supportedLanguages.length ? (
+                  status.supportedLanguages.map((lang) => (
+                    <Badge key={lang} variant="outline" className="text-xs">
+                      {lang}
+                    </Badge>
+                  ))
+                ) : (
+                  <p className="text-sm text-muted-foreground">None configured</p>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
         <div className="grid gap-4 md:grid-cols-3">
           <div className="space-y-1">
             <p className="text-sm font-medium">Loop Schedule</p>
             <p className="text-sm text-muted-foreground">
               {status.loopDay && status.loopTime
-                ? `${status.loopDay} at ${status.loopTime} UTC`
+                ? `${status.loopDay.charAt(0).toUpperCase() + status.loopDay.slice(1)} at ${status.loopTime} UTC`
                 : "Not configured"}
             </p>
           </div>
@@ -53,26 +79,6 @@ export function WeeklyLoopStatusCard({ loopStatus }: WeeklyLoopStatusCardProps) 
             <p className="text-sm text-muted-foreground">
               {status.nextRun ? new Date(status.nextRun).toLocaleString() : "Not scheduled"}
             </p>
-          </div>
-        </div>
-        <div className="grid gap-4 md:grid-cols-2">
-          <div className="space-y-1">
-            <p className="text-sm font-medium">Items Processed (Last Run)</p>
-            <p className="text-2xl font-bold">{status.itemsProcessed}</p>
-          </div>
-          <div className="space-y-1">
-            <p className="text-sm font-medium">Supported Languages</p>
-            <div className="flex flex-wrap gap-1">
-              {status.supportedLanguages.length ? (
-                status.supportedLanguages.map((lang) => (
-                  <Badge key={lang} variant="outline" className="text-xs">
-                    {lang}
-                  </Badge>
-                ))
-              ) : (
-                <p className="text-sm text-muted-foreground">None configured</p>
-              )}
-            </div>
           </div>
         </div>
       </CardContent>

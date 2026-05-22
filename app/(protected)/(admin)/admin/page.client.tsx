@@ -24,6 +24,8 @@ function MetricCard({
   description?: string;
   icon: React.ComponentType<{ className?: string }>;
 }) {
+  const displayValue = value === 0 ? "-" : value;
+
   return (
     <Card>
       <CardHeader>
@@ -33,7 +35,7 @@ function MetricCard({
         </div>
       </CardHeader>
       <CardContent>
-        <div className="text-2xl font-bold">{value}</div>
+        <div className="text-2xl font-bold">{displayValue}</div>
         {description && <p className="text-xs text-muted-foreground mt-1">{description}</p>}
       </CardContent>
     </Card>
