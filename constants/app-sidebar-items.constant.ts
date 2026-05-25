@@ -52,11 +52,7 @@ export const ROLE_SIDEBAR_DATA: Record<string, RoleSidebarData> = {
   [ROLES.CONTRIBUTOR]: {
     platform: {
       title: "Contributor Space",
-      items: [
-        { name: "Submit Content", url: "/contributor/submit", icon: SendIcon },
-        { name: "My Submissions", url: "/contributor/submissions", icon: ListTodoIcon },
-        { name: "Guidelines", url: "/contributor/guidelines", icon: LibraryIcon },
-      ],
+      items: [{ name: "My Submissions", url: "/contributor", icon: ListTodoIcon }],
     },
   },
   [ROLES.OPERATOR]: {
