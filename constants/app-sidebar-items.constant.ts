@@ -59,6 +59,7 @@ export const ROLE_SIDEBAR_DATA: Record<string, RoleSidebarData> = {
     platform: {
       title: "Ops Control",
       items: [
+        { name: "Dashboard", url: "/operator", icon: PieChartIcon },
         { name: "Review Queue", url: "/operator/review", icon: MonitorIcon },
         { name: "Distribution Hub", url: "/operator/distribution", icon: ActivityIcon },
         { name: "Activity Logs", url: "/operator/logs", icon: ListTodoIcon },

@@ -4,7 +4,7 @@ import { db } from "@/lib/drizzle/db";
 import { requireRole } from "@/lib/guards/role.guard";
 import { ROLES } from "@/drizzle/constants/roles-permissions.constant";
 import { generatedContent, contentSources, reviewStatuses, profiles } from "@/drizzle/schemas";
-import { eq, desc } from "drizzle-orm";
+import { eq, desc, and } from "drizzle-orm";
 
 import type { ReviewInput } from "@/types/review.types";
 
@@ -56,7 +56,8 @@ export async function getAwaitingReview(page = 1, pageSize = 20) {
     language: row.language,
     generationAttempt: Number(row.generationAttempt ?? 1),
     createdAt: toISOString(row.createdAt),
-    channelFormats: row.channelFormats ?? null,
+    channelFormats:
+      (row.channelFormats as { linkedin: string; blog: string; newsletter: string } | null) ?? null,
     submittedBy: row.submittedBy ?? null,
     submittedByName: row.submittedByName ?? null,
   }));
@@ -121,7 +122,9 @@ export async function getGeneratedContentDetail(id: string) {
     id: gcRow.id,
     contentSourceId: gcRow.contentSourceId,
     generatedText: gcRow.generatedText,
-    channelFormats: gcRow.channelFormats ?? null,
+    channelFormats:
+      (gcRow.channelFormats as { linkedin: string; blog: string; newsletter: string } | null) ??
+      null,
     language: gcRow.language,
     generationAttempt: Number(gcRow.generationAttempt ?? 1),
     createdAt: toISOString(gcRow.createdAt),
@@ -152,26 +155,36 @@ export async function getGeneratedContentDetail(id: string) {
 export async function submitReview(input: ReviewInput) {
   const user = await requireRole(ROLES.OPERATOR);
 
-  const [inserted] = await db
-    .insert(reviewStatuses)
-    .values({
-      generatedContentId: input.generated_content_id,
-      reviewedBy: user.id,
+  // Update the existing awaiting_review review instead of inserting a new one
+  const [updated] = await db
+    .update(reviewStatuses)
+    .set({
       status: input.status,
+      reviewedBy: user.id,
       checkboxFactual: input.checkbox_factual ?? null,
       checkboxNdaSafe: input.checkbox_nda_safe ?? null,
       checkboxTone: input.checkbox_tone ?? null,
       rejectionReason: input.rejection_reason ?? null,
       reviewedAt: new Date(),
     })
+    .where(
+      and(
+        eq(reviewStatuses.generatedContentId, input.generated_content_id),
+        eq(reviewStatuses.status, "awaiting_review")
+      )
+    )
     .returning();
+
+  if (!updated) {
+    throw new Error("Review not found or already reviewed");
+  }
 
   // TODO: If rejected -> start aimlRegenerate workflow (Vercel Workflows)
 
   return {
-    id: inserted.id,
-    generatedContentId: inserted.generatedContentId,
-    reviewedBy: inserted.reviewedBy,
-    status: inserted.status,
+    id: updated.id,
+    generatedContentId: updated.generatedContentId,
+    reviewedBy: updated.reviewedBy,
+    status: updated.status,
   };
 }
