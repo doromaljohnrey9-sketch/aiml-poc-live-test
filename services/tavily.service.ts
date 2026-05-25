@@ -6,9 +6,7 @@ if (!TAVILY_API_KEY) {
   console.warn("TAVILY_API_KEY not set. Tavily extraction will be disabled.");
 }
 
-const tvly = TAVILY_API_KEY
-  ? tavily({ apiKey: TAVILY_API_KEY })
-  : null;
+const tvly = TAVILY_API_KEY ? tavily({ apiKey: TAVILY_API_KEY }) : null;
 
 export interface ExtractResult {
   url: string;
@@ -43,7 +41,7 @@ export async function extractFromUrl(url: string): Promise<{
       };
     }
 
-    const response = await tvly.extract([url]) as ExtractResponse;
+    const response = (await tvly.extract([url])) as ExtractResponse;
 
     if (response.results.length === 0) {
       return {
