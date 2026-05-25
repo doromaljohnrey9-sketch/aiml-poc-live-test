@@ -3,6 +3,7 @@ import { db } from "@/lib/drizzle/db";
 import { systemConfig } from "@/drizzle/schemas/system-config/system-config.schema";
 import { contentSources } from "@/drizzle/schemas/content-sources/content-sources.schema";
 import { generatedContent } from "@/drizzle/schemas/generated-content/generated-content.schema";
+import { reviewStatuses } from "@/drizzle/schemas/review-statuses/review-statuses.schema";
 import { auditLogs } from "@/drizzle/schemas/audit-logs/audit-logs.schema";
 import { eq } from "drizzle-orm";
 import { notifyOperators as notifyOps } from "../shared/notifyOperators";
@@ -127,19 +128,31 @@ export async function storeGeneratedContent(
 ) {
   "use step";
 
-  // Insert new generated_content record with status: awaiting_review
-  await db.insert(generatedContent).values({
-    contentSourceId,
-    generatedText: JSON.stringify(content),
-    channelFormats: content,
-    language,
+  // Insert new generated_content record
+  const [inserted] = await db
+    .insert(generatedContent)
+    .values({
+      contentSourceId,
+      generatedText: JSON.stringify(content),
+      channelFormats: content,
+      language,
+      generationAttempt: 1,
+      modelUsed: "gpt-4",
+      bannedPhraseHit: false,
+    })
+    .returning();
+
+  // Create initial review status as awaiting_review
+  await db.insert(reviewStatuses).values({
+    generatedContentId: inserted.id,
+    reviewedBy: null, // No reviewer yet
     status: "awaiting_review",
-    generationAttempt: 1,
-    modelUsed: "gpt-4",
-    bannedPhraseHit: false,
+    reviewedAt: null,
   });
 
-  console.log(`Stored generated content for source ${contentSourceId} (status: awaiting_review)`);
+  console.log(
+    `Stored generated content for source ${contentSourceId} (status: awaiting_review in review_statuses)`
+  );
 }
 
 export async function markSourceContentGenerated(contentSourceId: string) {
@@ -164,28 +177,4 @@ export async function markSourceDistributed(contentSourceId: string) {
     .where(eq(contentSources.id, contentSourceId));
 
   console.log(`Marked source ${contentSourceId} as distributed`);
-}
-
-export async function approveGeneratedContent(generatedContentId: string) {
-  "use step";
-
-  // Update generated_content status to 'approved'
-  await db
-    .update(generatedContent)
-    .set({ status: "approved" })
-    .where(eq(generatedContent.id, generatedContentId));
-
-  console.log(`Approved generated content ${generatedContentId}`);
-}
-
-export async function rejectGeneratedContent(generatedContentId: string) {
-  "use step";
-
-  // Update generated_content status to 'rejected'
-  await db
-    .update(generatedContent)
-    .set({ status: "rejected" })
-    .where(eq(generatedContent.id, generatedContentId));
-
-  console.log(`Rejected generated content ${generatedContentId}`);
 }

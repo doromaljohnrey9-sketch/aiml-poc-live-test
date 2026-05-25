@@ -3,8 +3,8 @@
 import { db } from "@/lib/drizzle/db";
 import { requireRole } from "@/lib/guards/role.guard";
 import { ROLES } from "@/drizzle/constants/roles-permissions.constant";
-import { distributionLogs, generatedContent } from "@/drizzle/schemas";
-import { eq, desc } from "drizzle-orm";
+import { distributionLogs, generatedContent, reviewStatuses } from "@/drizzle/schemas";
+import { eq, desc, and } from "drizzle-orm";
 
 const toISOString = (value: Date | string | null | undefined): string | null =>
   value instanceof Date ? value.toISOString() : (value ?? null);
@@ -13,6 +13,17 @@ export async function getApprovedContent(page = 1, pageSize = 20) {
   await requireRole(ROLES.OPERATOR);
 
   const offset = (page - 1) * pageSize;
+
+  // Subquery to get the latest review status for each generated content
+  const latestReviewSubquery = db
+    .select({
+      generatedContentId: reviewStatuses.generatedContentId,
+      status: reviewStatuses.status,
+      reviewedAt: reviewStatuses.reviewedAt,
+    })
+    .from(reviewStatuses)
+    .orderBy(desc(reviewStatuses.reviewedAt))
+    .as("latest_review");
 
   const rows = await db
     .select({
@@ -24,8 +35,12 @@ export async function getApprovedContent(page = 1, pageSize = 20) {
       createdAt: generatedContent.createdAt,
     })
     .from(generatedContent)
+    .innerJoin(
+      latestReviewSubquery,
+      eq(generatedContent.id, latestReviewSubquery.generatedContentId)
+    )
     .leftJoin(distributionLogs, eq(generatedContent.id, distributionLogs.generatedContentId))
-    // Only include generated content that has an approved review (review logic handled elsewhere)
+    .where(eq(latestReviewSubquery.status, "approved"))
     .orderBy(desc(generatedContent.createdAt))
     .limit(pageSize)
     .offset(offset);

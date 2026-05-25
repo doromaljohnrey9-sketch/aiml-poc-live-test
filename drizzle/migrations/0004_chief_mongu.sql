@@ -1,0 +1,1 @@
+ALTER TABLE "generated_content" DROP COLUMN "status";

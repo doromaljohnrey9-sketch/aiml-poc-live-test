@@ -16,6 +16,17 @@ export async function getAwaitingReview(page = 1, pageSize = 20) {
 
   const offset = (page - 1) * pageSize;
 
+  // Subquery to get the latest review status for each generated content
+  const latestReviewSubquery = db
+    .select({
+      generatedContentId: reviewStatuses.generatedContentId,
+      status: reviewStatuses.status,
+      reviewedAt: reviewStatuses.reviewedAt,
+    })
+    .from(reviewStatuses)
+    .orderBy(desc(reviewStatuses.reviewedAt))
+    .as("latest_review");
+
   const rows = await db
     .select({
       id: generatedContent.id,
@@ -28,9 +39,13 @@ export async function getAwaitingReview(page = 1, pageSize = 20) {
       submittedByName: profiles.name,
     })
     .from(generatedContent)
+    .innerJoin(
+      latestReviewSubquery,
+      eq(generatedContent.id, latestReviewSubquery.generatedContentId)
+    )
     .leftJoin(contentSources, eq(generatedContent.contentSourceId, contentSources.id))
     .leftJoin(profiles, eq(contentSources.submittedBy, profiles.id))
-    .where(eq(generatedContent.status, "awaiting_review"))
+    .where(eq(latestReviewSubquery.status, "awaiting_review"))
     .orderBy(desc(generatedContent.createdAt))
     .limit(pageSize)
     .offset(offset);
@@ -150,12 +165,6 @@ export async function submitReview(input: ReviewInput) {
       reviewedAt: new Date(),
     })
     .returning();
-
-  // Update generated_content status based on review
-  await db
-    .update(generatedContent)
-    .set({ status: input.status })
-    .where(eq(generatedContent.id, input.generated_content_id));
 
   // TODO: If rejected -> start aimlRegenerate workflow (Vercel Workflows)
 
