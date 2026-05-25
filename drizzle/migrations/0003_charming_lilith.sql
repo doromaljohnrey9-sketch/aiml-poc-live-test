@@ -1,0 +1,1 @@
+ALTER TABLE "generated_content" ADD COLUMN "status" text DEFAULT 'awaiting_review' NOT NULL;

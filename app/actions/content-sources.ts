@@ -50,7 +50,13 @@ export async function createContentSource(input: ContentSourceInput): Promise<Co
     extractedText: inserted.extractedText,
     contextNote: inserted.contextNote,
     language: inserted.language as "en" | "ko",
-    status: inserted.status as "pending" | "processing" | "processed" | "failed",
+    status: inserted.status as
+      | "pending"
+      | "processing"
+      | "content_generated"
+      | "distributed"
+      | "processed"
+      | "failed",
     createdAt: inserted.createdAt?.toISOString() ?? new Date().toISOString(),
     updatedAt: inserted.updatedAt?.toISOString() ?? new Date().toISOString(),
   };
@@ -124,7 +130,13 @@ export async function getMyContentSources(params?: {
       extractedText: row.extractedText,
       contextNote: row.contextNote,
       language: row.language as "en" | "ko",
-      status: row.status as "pending" | "processing" | "processed" | "failed",
+      status: row.status as
+        | "pending"
+        | "processing"
+        | "content_generated"
+        | "distributed"
+        | "processed"
+        | "failed",
       createdAt: row.createdAt?.toISOString() ?? new Date().toISOString(),
       updatedAt: row.updatedAt?.toISOString() ?? new Date().toISOString(),
     })),
@@ -150,7 +162,13 @@ export async function getContentSourceDetail(id: string): Promise<ContentSource 
     extractedText: row.extractedText,
     contextNote: row.contextNote,
     language: row.language as "en" | "ko",
-    status: row.status as "pending" | "processing" | "processed" | "failed",
+    status: row.status as
+      | "pending"
+      | "processing"
+      | "content_generated"
+      | "distributed"
+      | "processed"
+      | "failed",
     createdAt: row.createdAt?.toISOString() ?? new Date().toISOString(),
     updatedAt: row.updatedAt?.toISOString() ?? new Date().toISOString(),
   };

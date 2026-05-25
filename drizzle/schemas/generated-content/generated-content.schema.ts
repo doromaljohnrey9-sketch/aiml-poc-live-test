@@ -17,6 +17,7 @@ export const generatedContent = pgTable(
     generatedText: text("generated_text").notNull(),
     channelFormats: jsonb("channel_formats"), // { linkedin: "...", blog: "...", newsletter: "..." }
     language: text("language").notNull(), // 'en' | 'ko'
+    status: text("status").notNull().default("awaiting_review"), // 'awaiting_review' | 'approved' | 'rejected'
     generationAttempt: integer("generation_attempt").default(1),
     modelUsed: text("model_used").default("gpt-4"),
     promptVersion: text("prompt_version"),
