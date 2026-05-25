@@ -48,7 +48,12 @@ export async function getApprovedContent(page = 1, pageSize = 20) {
   return rows.map((row) => ({
     id: row.id,
     contentSourceId: row.contentSourceId,
-    channelFormats: row.channelFormats ?? null,
+    channelFormats:
+      (row.channelFormats as {
+        linkedin: string;
+        blog: string;
+        newsletter: string;
+      } | null) ?? null,
     language: row.language,
     generationAttempt: Number(row.generationAttempt ?? 1),
     createdAt: toISOString(row.createdAt),
