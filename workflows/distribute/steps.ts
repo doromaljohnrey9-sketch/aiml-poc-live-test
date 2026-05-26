@@ -6,6 +6,7 @@ import { distributionLogs } from "@/drizzle/schemas/distribution-logs/distributi
 import { contentSources } from "@/drizzle/schemas/content-sources/content-sources.schema";
 import { eq } from "drizzle-orm";
 import { Resend } from "resend";
+import { generateNewsletterHtml, type NewsletterData } from "@/templates/newsletter-template";
 
 const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
 const RESEND_EMAIL_FROM = process.env.RESEND_EMAIL_FROM;
@@ -73,7 +74,7 @@ export async function publishToBlog(content: string, generatedContentId: string)
   return { slug };
 }
 
-export async function publishToNewsletter(content: string) {
+export async function publishToNewsletter(content: any) {
   "use step";
 
   if (!resend || !RESEND_EMAIL_FROM) {
@@ -85,23 +86,41 @@ export async function publishToNewsletter(content: string) {
   // For now, using a placeholder recipient
   const recipient = process.env.NEWSLETTER_RECIPIENT || "newsletter@example.com";
 
+  // Convert newsletter object to HTML string if needed
+  let htmlContent: string;
+  let subject: string;
+
+  if (typeof content === "string") {
+    htmlContent = content;
+    subject = "Latest Updates from AIML";
+  } else {
+    const newsletter = content as NewsletterData;
+    subject = newsletter.subject || "Latest Updates from AIML";
+    htmlContent = generateNewsletterHtml(newsletter, subject);
+  }
+
   try {
+    console.log("Newsletter data:", { subject, recipient, htmlLength: htmlContent.length });
     const response = await resend.emails.send({
       from: RESEND_EMAIL_FROM,
       to: recipient,
-      subject: "Latest Updates from AIML",
-      html: content,
+      subject,
+      html: htmlContent,
     });
 
-    console.log("Publishing to Newsletter");
+    console.log("Resend response:", JSON.stringify(response, null, 2));
 
     // Handle response which might be an error or success
     if ("error" in response) {
-      throw new FatalError(`Resend API error: ${response.error?.message || "Unknown error"}`);
+      console.error("Resend API error details:", response);
+      throw new FatalError(
+        `Resend API error: ${JSON.stringify(response.error) || "Unknown error"}`
+      );
     }
 
     // Type assertion for the success case
     const messageId = (response as { id?: string }).id;
+    console.log("Newsletter sent successfully, messageId:", messageId);
     return { messageId: messageId || null };
   } catch (error) {
     console.error("Failed to send newsletter:", error);

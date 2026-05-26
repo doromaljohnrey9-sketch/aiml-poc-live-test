@@ -29,7 +29,7 @@ import { CalendarIcon, Loader2Icon, XIcon } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import type { PublishInput } from "@/hooks/operator/use-operator-distribution";
-import { EmailTemplatePreview } from "@/components/operator/templates/EmailTemplatePreview";
+import { EmailTemplatePreview } from "@/components/operator/preview/EmailTemplatePreview";
 
 interface ChannelFormats {
   linkedin?: string;

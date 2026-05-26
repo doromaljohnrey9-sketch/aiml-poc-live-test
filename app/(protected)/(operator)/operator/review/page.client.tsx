@@ -7,6 +7,7 @@ import { TableFilters } from "@/components/shared/TableFilters";
 import { ReviewTable } from "@/components/operator/review/ReviewTable";
 import { createReviewColumns } from "@/components/operator/review/ReviewColumns";
 import { ReviewDetailDrawer } from "@/components/operator/review/drawer/ReviewDetailDrawer";
+import { toast } from "sonner";
 
 export default function ReviewPageClient() {
   const [selectedContentId, setSelectedContentId] = useState<string | null>(null);
@@ -29,6 +30,19 @@ export default function ReviewPageClient() {
   } = useOperatorReview();
 
   const columns = createReviewColumns();
+
+  const handleSubmitReview = (input: any) => {
+    submit.mutate(input, {
+      onSuccess: () => {
+        setSelectedContentId(null);
+        toast.success(
+          input.status === "approved"
+            ? "Content approved successfully"
+            : "Content rejected successfully"
+        );
+      },
+    });
+  };
 
   return (
     <div className="flex-1 space-y-6 p-8">
@@ -78,13 +92,7 @@ export default function ReviewPageClient() {
         <ReviewDetailDrawer
           contentId={selectedContentId}
           onClose={() => setSelectedContentId(null)}
-          onSubmitReview={(input) => {
-            submit.mutate(input, {
-              onSuccess: () => {
-                setSelectedContentId(null);
-              },
-            });
-          }}
+          onSubmitReview={handleSubmitReview}
           isSubmitting={submit.isPending}
         />
       )}

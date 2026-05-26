@@ -28,7 +28,7 @@ import {
 import { CheckCircleIcon, XCircleIcon, Loader2Icon, XIcon } from "lucide-react";
 import { toast } from "sonner";
 import type { ReviewInput } from "@/types/review.types";
-import { EmailTemplatePreview } from "@/components/operator/templates/EmailTemplatePreview";
+import { EmailTemplatePreview } from "@/components/operator/preview/EmailTemplatePreview";
 
 interface ChannelFormats {
   linkedin?: string;

@@ -10,6 +10,7 @@ import { TableFilters } from "@/components/shared/TableFilters";
 import { DistributionTable } from "@/components/operator/distribute/DistributionTable";
 import { createDistributionColumns } from "@/components/operator/distribute/DistributionColumns";
 import { DistributionDetailDrawer } from "@/components/operator/distribute/drawer/DistributionDetailDrawer";
+import { toast } from "sonner";
 
 export default function DistributionPageClient() {
   const [selectedContentId, setSelectedContentId] = useState<string | null>(null);
@@ -30,6 +31,15 @@ export default function DistributionPageClient() {
   } = useOperatorDistribution();
 
   const columns = createDistributionColumns();
+
+  const handlePublish = (input: PublishInput) => {
+    publish.mutate(input, {
+      onSuccess: () => {
+        setSelectedContentId(null);
+        toast.success(`Content distributed to ${input.channels.join(", ")}`);
+      },
+    });
+  };
 
   return (
     <div className="flex-1 space-y-6 p-8">
@@ -68,13 +78,7 @@ export default function DistributionPageClient() {
         <DistributionDetailDrawer
           contentId={selectedContentId}
           onClose={() => setSelectedContentId(null)}
-          onPublish={(input: PublishInput) => {
-            publish.mutate(input, {
-              onSuccess: () => {
-                setSelectedContentId(null);
-              },
-            });
-          }}
+          onPublish={handlePublish}
           isPublishing={publish.isPending}
         />
       )}
