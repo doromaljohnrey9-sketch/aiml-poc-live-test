@@ -8,7 +8,9 @@ import {
   scrapeIfUrl,
   generateContent,
   storeGeneratedContent,
+  markSourceProcessing,
   markSourceContentGenerated,
+  markSourceFailed,
 } from "./steps";
 import { runBannedPhraseFilter, regenerateWithBannedPhrases } from "../shared/bannedPhraseFilter";
 
@@ -38,49 +40,70 @@ export async function aimlWeeklyLoop() {
   const sources = await fetchPendingSources();
 
   for (const source of sources) {
-    // Scrape URL if needed
-    const text = await scrapeIfUrl(source);
+    try {
+      // Mark source as processing
+      await markSourceProcessing(source.id);
 
-    // Generate content with AI (mock implementation)
-    const draft = await generateContent(text, source.contextNote, source.language);
+      // Scrape URL if needed
+      const text = await scrapeIfUrl(source);
 
-    // Run banned phrase filter
-    const filterResult = await runBannedPhraseFilter(JSON.stringify(draft));
+      // Generate content with AI (mock implementation)
+      const draft = await generateContent(text, source.contextNote, source.language);
 
-    let filtered = draft;
-    let attempt = 0;
+      // Run banned phrase filter
+      const filterResult = await runBannedPhraseFilter(JSON.stringify(draft));
 
-    // Regenerate if banned phrases detected (max 2 retries)
-    while (filterResult.hasBannedPhrases && attempt < 2) {
-      console.log(
-        `Banned phrases detected (attempt ${attempt + 1}): ${filterResult.detectedPhrases.join(", ")}`
-      );
+      let filtered = draft;
+      let attempt = 0;
 
-      // Regenerate content avoiding the detected phrases
-      filtered = await regenerateWithBannedPhrases(
-        text,
-        source.contextNote,
-        source.language,
-        filterResult.detectedPhrases,
-        attempt
-      );
+      // Regenerate if banned phrases detected (max 2 retries)
+      while (filterResult.hasBannedPhrases && attempt < 2) {
+        console.log(
+          `Banned phrases detected (attempt ${attempt + 1}): ${filterResult.detectedPhrases.join(", ")}`
+        );
 
-      // Re-run the filter on regenerated content
-      const newFilterResult = await runBannedPhraseFilter(JSON.stringify(filtered));
+        // Regenerate content avoiding the detected phrases
+        filtered = await regenerateWithBannedPhrases(
+          text,
+          source.contextNote,
+          source.language,
+          filterResult.detectedPhrases,
+          attempt
+        );
 
-      if (!newFilterResult.hasBannedPhrases) {
-        console.log("Regeneration successful - no banned phrases detected");
-        break;
+        // Re-run the filter on regenerated content
+        const newFilterResult = await runBannedPhraseFilter(JSON.stringify(filtered));
+
+        if (!newFilterResult.hasBannedPhrases) {
+          console.log("Regeneration successful - no banned phrases detected");
+          break;
+        }
+
+        attempt++;
       }
 
-      attempt++;
+      // If still has banned phrases after max retries, mark as failed
+      if (filterResult.hasBannedPhrases && attempt >= 2) {
+        await markSourceFailed(
+          source.id,
+          `Max regeneration attempts reached - content still contains banned phrases: ${filterResult.detectedPhrases.join(", ")}`
+        );
+        continue; // Skip to next source
+      }
+
+      // Store generated content
+      await storeGeneratedContent(source.id, filtered, source.language);
+
+      // Mark source as processed (approval status is in generated_content table)
+      await markSourceContentGenerated(source.id);
+    } catch (error) {
+      // Mark source as failed on any error
+      await markSourceFailed(
+        source.id,
+        error instanceof Error ? error.message : "Unknown error during processing"
+      );
+      console.error(`Failed to process source ${source.id}:`, error);
     }
-
-    // Store generated content
-    await storeGeneratedContent(source.id, filtered, source.language);
-
-    // Mark source as content_generated (approval status is in generated_content table)
-    await markSourceContentGenerated(source.id);
   }
 
   await notifyOperators();

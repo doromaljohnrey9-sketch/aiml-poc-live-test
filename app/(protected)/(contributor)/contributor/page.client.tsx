@@ -59,6 +59,7 @@ export default function ContributorPageClient() {
               { value: "pending", label: "Pending" },
               { value: "processing", label: "Processing" },
               { value: "processed", label: "Processed" },
+              { value: "distributed", label: "Distributed" },
               { value: "failed", label: "Failed" },
             ],
           },

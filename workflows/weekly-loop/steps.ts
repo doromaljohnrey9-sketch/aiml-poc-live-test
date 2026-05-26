@@ -161,16 +161,40 @@ export async function storeGeneratedContent(
   );
 }
 
+export async function markSourceProcessing(contentSourceId: string) {
+  "use step";
+
+  // Update content_sources status to 'processing'
+  await db
+    .update(contentSources)
+    .set({ status: "processing" })
+    .where(eq(contentSources.id, contentSourceId));
+
+  console.log(`Marked source ${contentSourceId} as processing`);
+}
+
 export async function markSourceContentGenerated(contentSourceId: string) {
   "use step";
 
-  // Update content_sources status to 'content_generated'
+  // Update content_sources status to 'processed'
   await db
     .update(contentSources)
-    .set({ status: "content_generated" })
+    .set({ status: "processed" })
     .where(eq(contentSources.id, contentSourceId));
 
-  console.log(`Marked source ${contentSourceId} as content_generated`);
+  console.log(`Marked source ${contentSourceId} as processed`);
+}
+
+export async function markSourceFailed(contentSourceId: string, reason: string) {
+  "use step";
+
+  // Update content_sources status to 'failed'
+  await db
+    .update(contentSources)
+    .set({ status: "failed" })
+    .where(eq(contentSources.id, contentSourceId));
+
+  console.log(`Marked source ${contentSourceId} as failed: ${reason}`);
 }
 
 export async function markSourceDistributed(contentSourceId: string) {

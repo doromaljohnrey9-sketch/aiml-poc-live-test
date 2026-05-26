@@ -38,12 +38,8 @@ export async function regenerateWithBannedPhrases(
 ): Promise<GeneratedContent> {
   "use step";
 
-  // Check max retry attempts (0-indexed, so attempt 2 means 3 tries total)
-  if (attempt >= 2) {
-    throw new FatalError(
-      "Max regeneration attempts reached - content still contains banned phrases"
-    );
-  }
+  // Note: Max retry check is now handled in the workflow, not here
+  // This function will be called by the workflow which controls the retry logic
 
   console.log(`Regenerating content (attempt ${attempt + 1}) avoiding phrases:`, bannedPhrases);
 
