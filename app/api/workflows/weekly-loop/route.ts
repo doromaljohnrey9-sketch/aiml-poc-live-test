@@ -3,12 +3,11 @@ import { aimlWeeklyLoop } from "@/workflows/weekly-loop/workflow";
 import { NextResponse } from "next/server";
 
 export async function POST(request: Request) {
-  // Verify Vercel Cron authorization header
+  // Optional authentication - if WORKFLOW_SECRET is set, require it
   const authHeader = request.headers.get("authorization");
+  const workflowSecret = process.env.WORKFLOW_SECRET;
 
-  // In production, verify the cron secret from environment variables
-  const cronSecret = process.env.CRON_SECRET;
-  if (cronSecret && authHeader !== `Bearer ${cronSecret}`) {
+  if (workflowSecret && authHeader !== `Bearer ${workflowSecret}`) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 

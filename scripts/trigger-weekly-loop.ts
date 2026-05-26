@@ -5,13 +5,11 @@ async function main() {
   try {
     const startTime = Date.now();
 
-    // Trigger via API route (requires Next.js dev server running)
-    const response = await fetch("http://localhost:3000/api/cron/weekly-loop", {
+    // Trigger via workflow API route (requires Next.js dev server running)
+    const response = await fetch("http://localhost:3000/api/workflows/weekly-loop", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        // Add authorization if CRON_SECRET is set
-        ...(process.env.CRON_SECRET ? { Authorization: `Bearer ${process.env.CRON_SECRET}` } : {}),
       },
     });
 
