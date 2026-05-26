@@ -4,12 +4,17 @@ import { db } from "@/lib/drizzle/db";
 import { requireRole } from "@/lib/guards/role.guard";
 import { ROLES } from "@/drizzle/constants/roles-permissions.constant";
 import { distributionLogs, generatedContent, reviewStatuses } from "@/drizzle/schemas";
-import { eq, desc, and } from "drizzle-orm";
+import { eq, desc, and, count } from "drizzle-orm";
 
 const toISOString = (value: Date | string | null | undefined): string | null =>
   value instanceof Date ? value.toISOString() : (value ?? null);
 
-export async function getApprovedContent(page = 1, pageSize = 20) {
+export async function getApprovedContent(
+  page = 1,
+  pageSize = 20,
+  search?: string,
+  language?: string
+) {
   await requireRole(ROLES.OPERATOR);
 
   const offset = (page - 1) * pageSize;
@@ -24,6 +29,26 @@ export async function getApprovedContent(page = 1, pageSize = 20) {
     .from(reviewStatuses)
     .orderBy(desc(reviewStatuses.reviewedAt))
     .as("latest_review");
+
+  // Build where conditions
+  const conditions = [eq(latestReviewSubquery.status, "approved")];
+
+  if (language && language !== "all") {
+    conditions.push(eq(generatedContent.language, language));
+  }
+
+  // Count query for total
+  const countResult = await db
+    .select({ count: count() })
+    .from(generatedContent)
+    .innerJoin(
+      latestReviewSubquery,
+      eq(generatedContent.id, latestReviewSubquery.generatedContentId)
+    )
+    .leftJoin(distributionLogs, eq(generatedContent.id, distributionLogs.generatedContentId))
+    .where(and(...conditions));
+
+  const total = Number(countResult[0]?.count ?? 0);
 
   const rows = await db
     .select({
@@ -40,30 +65,65 @@ export async function getApprovedContent(page = 1, pageSize = 20) {
       eq(generatedContent.id, latestReviewSubquery.generatedContentId)
     )
     .leftJoin(distributionLogs, eq(generatedContent.id, distributionLogs.generatedContentId))
-    .where(eq(latestReviewSubquery.status, "approved"))
+    .where(and(...conditions))
     .orderBy(desc(generatedContent.createdAt))
     .limit(pageSize)
     .offset(offset);
 
-  return rows.map((row) => ({
-    id: row.id,
-    contentSourceId: row.contentSourceId,
-    channelFormats:
-      (row.channelFormats as {
-        linkedin: string;
-        blog: string;
-        newsletter: string;
-      } | null) ?? null,
-    language: row.language,
-    generationAttempt: Number(row.generationAttempt ?? 1),
-    createdAt: toISOString(row.createdAt),
-  }));
+  return {
+    data: rows.map((row) => ({
+      id: row.id,
+      contentSourceId: row.contentSourceId,
+      channelFormats:
+        (row.channelFormats as {
+          linkedin: string;
+          blog: string;
+          newsletter: string;
+        } | null) ?? null,
+      language: row.language,
+      generationAttempt: Number(row.generationAttempt ?? 1),
+      createdAt: toISOString(row.createdAt),
+    })),
+    total,
+  };
 }
 
-export async function getDistributionLogs(generatedContentId?: string) {
+export async function getDistributionLogs(
+  page = 1,
+  pageSize = 20,
+  search?: string,
+  status?: string,
+  channel?: string,
+  generatedContentId?: string
+) {
   await requireRole(ROLES.OPERATOR);
 
-  const q = db
+  const offset = (page - 1) * pageSize;
+
+  // Build where conditions
+  const conditions: any[] = [];
+
+  if (generatedContentId) {
+    conditions.push(eq(distributionLogs.generatedContentId, generatedContentId));
+  }
+
+  if (status && status !== "all") {
+    conditions.push(eq(distributionLogs.status, status));
+  }
+
+  if (channel && channel !== "all") {
+    conditions.push(eq(distributionLogs.channel, channel));
+  }
+
+  // Count query for total
+  const countResult = await db
+    .select({ count: count() })
+    .from(distributionLogs)
+    .where(conditions.length > 0 ? and(...conditions) : undefined);
+
+  const total = Number(countResult[0]?.count ?? 0);
+
+  const rows = await db
     .select({
       id: distributionLogs.id,
       generatedContentId: distributionLogs.generatedContentId,
@@ -77,26 +137,26 @@ export async function getDistributionLogs(generatedContentId?: string) {
       updatedAt: distributionLogs.updatedAt,
     })
     .from(distributionLogs)
-    .orderBy(desc(distributionLogs.createdAt));
+    .where(conditions.length > 0 ? and(...conditions) : undefined)
+    .orderBy(desc(distributionLogs.createdAt))
+    .limit(pageSize)
+    .offset(offset);
 
-  if (generatedContentId) {
-    q.where(eq(distributionLogs.generatedContentId, generatedContentId));
-  }
-
-  const rows = await q;
-
-  return rows.map((r) => ({
-    id: r.id,
-    generatedContentId: r.generatedContentId,
-    channel: r.channel,
-    status: r.status,
-    scheduledAt: toISOString(r.scheduledAt),
-    publishedAt: toISOString(r.publishedAt),
-    externalPostId: r.externalPostId,
-    errorMessage: r.errorMessage,
-    createdAt: toISOString(r.createdAt),
-    updatedAt: toISOString(r.updatedAt),
-  }));
+  return {
+    data: rows.map((r) => ({
+      id: r.id,
+      generatedContentId: r.generatedContentId,
+      channel: r.channel,
+      status: r.status,
+      scheduledAt: toISOString(r.scheduledAt),
+      publishedAt: toISOString(r.publishedAt),
+      externalPostId: r.externalPostId,
+      errorMessage: r.errorMessage,
+      createdAt: toISOString(r.createdAt),
+      updatedAt: toISOString(r.updatedAt),
+    })),
+    total,
+  };
 }
 
 export async function publishContent(input: {
@@ -108,7 +168,15 @@ export async function publishContent(input: {
 
   // TODO: Check emergency stop in system_config and block if active
 
-  const entries = input.channels.map((channel) => ({
+  // Filter out disabled channels (LinkedIn and Blog are V2 features)
+  // Only newsletter is active in V1 per PRD
+  const activeChannels = input.channels.filter((channel) => channel === "newsletter");
+
+  if (activeChannels.length === 0) {
+    throw new Error("No active channels selected. Only newsletter is available in V1.");
+  }
+
+  const entries = activeChannels.map((channel) => ({
     generatedContentId: input.generated_content_id,
     channel,
     status: "pending",

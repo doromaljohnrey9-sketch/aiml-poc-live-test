@@ -16,6 +16,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
+import { TablePagination } from "@/components/shared/TablePagination";
 import { useState } from "react";
 import type { LogItem } from "./LogsColumns";
 
@@ -24,9 +25,16 @@ interface LogsTableProps {
   data: LogItem[];
   isLoading: boolean;
   onRowClick?: (log: LogItem) => void;
+  pagination?: {
+    page: number;
+    pageSize: number;
+    total: number;
+    totalPages: number;
+    onPageChange: (page: number) => void;
+  };
 }
 
-export function LogsTable({ columns, data, isLoading, onRowClick }: LogsTableProps) {
+export function LogsTable({ columns, data, isLoading, onRowClick, pagination }: LogsTableProps) {
   const [sorting, setSorting] = useState<SortingState>([{ id: "createdAt", desc: true }]);
 
   const table = useReactTable({
@@ -101,6 +109,7 @@ export function LogsTable({ columns, data, isLoading, onRowClick }: LogsTablePro
           )}
         </TableBody>
       </Table>
+      {pagination && <TablePagination {...pagination} />}
     </div>
   );
 }

@@ -4,14 +4,20 @@ import { db } from "@/lib/drizzle/db";
 import { requireRole } from "@/lib/guards/role.guard";
 import { ROLES } from "@/drizzle/constants/roles-permissions.constant";
 import { generatedContent, contentSources, reviewStatuses, profiles } from "@/drizzle/schemas";
-import { eq, desc, and } from "drizzle-orm";
+import { eq, desc, and, count } from "drizzle-orm";
 
 import type { ReviewInput } from "@/types/review.types";
 
 const toISOString = (value: Date | string | null | undefined): string | null =>
   value instanceof Date ? value.toISOString() : (value ?? null);
 
-export async function getAwaitingReview(page = 1, pageSize = 20) {
+export async function getAwaitingReview(
+  page = 1,
+  pageSize = 20,
+  search?: string,
+  status?: string,
+  language?: string
+) {
   await requireRole(ROLES.OPERATOR);
 
   const offset = (page - 1) * pageSize;
@@ -26,6 +32,31 @@ export async function getAwaitingReview(page = 1, pageSize = 20) {
     .from(reviewStatuses)
     .orderBy(desc(reviewStatuses.reviewedAt))
     .as("latest_review");
+
+  // Build where conditions
+  const conditions = [eq(latestReviewSubquery.status, "awaiting_review")];
+
+  if (status && status !== "all") {
+    conditions.push(eq(latestReviewSubquery.status, status));
+  }
+
+  if (language && language !== "all") {
+    conditions.push(eq(generatedContent.language, language));
+  }
+
+  // Count query for total
+  const countResult = await db
+    .select({ count: count() })
+    .from(generatedContent)
+    .innerJoin(
+      latestReviewSubquery,
+      eq(generatedContent.id, latestReviewSubquery.generatedContentId)
+    )
+    .leftJoin(contentSources, eq(generatedContent.contentSourceId, contentSources.id))
+    .leftJoin(profiles, eq(contentSources.submittedBy, profiles.id))
+    .where(and(...conditions));
+
+  const total = Number(countResult[0]?.count ?? 0);
 
   const rows = await db
     .select({
@@ -45,22 +76,26 @@ export async function getAwaitingReview(page = 1, pageSize = 20) {
     )
     .leftJoin(contentSources, eq(generatedContent.contentSourceId, contentSources.id))
     .leftJoin(profiles, eq(contentSources.submittedBy, profiles.id))
-    .where(eq(latestReviewSubquery.status, "awaiting_review"))
+    .where(and(...conditions))
     .orderBy(desc(generatedContent.createdAt))
     .limit(pageSize)
     .offset(offset);
 
-  return rows.map((row) => ({
-    id: row.id,
-    contentSourceId: row.contentSourceId,
-    language: row.language,
-    generationAttempt: Number(row.generationAttempt ?? 1),
-    createdAt: toISOString(row.createdAt),
-    channelFormats:
-      (row.channelFormats as { linkedin: string; blog: string; newsletter: string } | null) ?? null,
-    submittedBy: row.submittedBy ?? null,
-    submittedByName: row.submittedByName ?? null,
-  }));
+  return {
+    data: rows.map((row) => ({
+      id: row.id,
+      contentSourceId: row.contentSourceId,
+      language: row.language,
+      generationAttempt: Number(row.generationAttempt ?? 1),
+      createdAt: toISOString(row.createdAt),
+      channelFormats:
+        (row.channelFormats as { linkedin: string; blog: string; newsletter: string } | null) ??
+        null,
+      submittedBy: row.submittedBy ?? null,
+      submittedByName: row.submittedByName ?? null,
+    })),
+    total,
+  };
 }
 
 export async function getGeneratedContentDetail(id: string) {

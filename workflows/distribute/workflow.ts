@@ -17,11 +17,19 @@ export async function aimlDistribute(generatedContentId: string, channels: strin
   for (const channel of channels) {
     try {
       if (channel === "linkedin") {
-        const result = await publishToLinkedIn(content.linkedin);
-        results[channel] = { status: "success", externalId: result.postId };
+        // TODO: Enable LinkedIn distribution in V2 - currently disabled per PRD V1 scope
+        // LinkedIn API integration pending OAuth setup and token management
+        results[channel] = {
+          status: "failed",
+          error: "LinkedIn distribution disabled in V1 - coming in V2",
+        };
       } else if (channel === "blog") {
-        const result = await publishToBlog(content.blog, generatedContentId);
-        results[channel] = { status: "success", externalId: result.slug };
+        // TODO: Enable Blog distribution in V2 - currently disabled per PRD V1 scope
+        // CMS integration (Sanity/Contentful) pending
+        results[channel] = {
+          status: "failed",
+          error: "Blog distribution disabled in V1 - coming in V2",
+        };
       } else if (channel === "newsletter") {
         const result = await publishToNewsletter(content.newsletter);
         results[channel] = { status: "success", externalId: result.messageId || undefined };

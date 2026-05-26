@@ -1,6 +1,9 @@
 import { FatalError } from "workflow";
 import { db } from "@/lib/drizzle/db";
 import { bannedPhrases } from "@/drizzle/schemas/banned-phrases/banned-phrases.schema";
+import { generateObject } from "ai";
+import { google } from "@ai-sdk/google";
+import { GeneratedContentSchema, type GeneratedContent } from "./contentSchemas";
 
 export async function runBannedPhraseFilter(generatedText: string) {
   "use step";
@@ -32,7 +35,7 @@ export async function regenerateWithBannedPhrases(
   language: string,
   bannedPhrases: string[],
   attempt: number
-) {
+): Promise<GeneratedContent> {
   "use step";
 
   // Check max retry attempts (0-indexed, so attempt 2 means 3 tries total)
@@ -44,21 +47,26 @@ export async function regenerateWithBannedPhrases(
 
   console.log(`Regenerating content (attempt ${attempt + 1}) avoiding phrases:`, bannedPhrases);
 
-  // Mock AI generation - simulates GPT-4 response with banned phrases avoided
-  const mockContent = {
-    linkedin:
-      language === "ko"
-        ? "AI 생성 콘텐츠 - 금지된 구문을 피한 링크드인 게시물입니다."
-        : "AI-generated content - LinkedIn post avoiding banned phrases.",
-    blog:
-      language === "ko"
-        ? "AI 생성 콘텐츠 - 금지된 구문을 피한 블로그 게시물입니다. 이것은 테스트용 모의 데이터입니다."
-        : "AI-generated content - Blog post avoiding banned phrases. This is mock data for testing.",
-    newsletter:
-      language === "ko"
-        ? "AI 생성 콘텐츠 - 금지된 구문을 피한 뉴스레터입니다."
-        : "AI-generated content - Newsletter avoiding banned phrases.",
-  };
+  const apiKey = process.env.GOOGLE_GENERATIVE_AI_API_KEY;
+  if (!apiKey) {
+    throw new FatalError("GOOGLE_GENERATIVE_AI_API_KEY is not set");
+  }
 
-  return mockContent;
+  const languageName = language === "ko" ? "Korean" : "English";
+
+  const { object } = await generateObject({
+    model: google("gemini-2.5-flash"),
+    system: `You are a professional content marketer. Generate engaging, structured content for multiple channels in ${languageName}.
+    STRICTLY AVOID these phrases: ${bannedPhrases.join(", ")}.
+    Create distinct content for each platform with appropriate tone and formatting.`,
+    prompt: `Regenerate structured LinkedIn, blog, and newsletter content based on the following source material, avoiding the banned phrases:
+
+    Source text: ${originalText}
+    ${contextNote ? `Context note: ${contextNote}` : ""}
+
+    Banned phrases to avoid: ${bannedPhrases.join(", ")}`,
+    schema: GeneratedContentSchema,
+  });
+
+  return object;
 }

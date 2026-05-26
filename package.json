@@ -28,6 +28,7 @@
     "workflow:weekly-loop": "tsx --env-file=.env scripts/trigger-weekly-loop.ts"
   },
   "dependencies": {
+    "@ai-sdk/google": "^3.0.79",
     "@ai-sdk/openai": "^3.0.65",
     "@hookform/resolvers": "5.2.2",
     "@radix-ui/react-avatar": "1.1.11",
@@ -47,6 +48,7 @@
     "@tavily/core": "^0.7.3",
     "@upstash/ratelimit": "2.0.8",
     "@upstash/redis": "1.37.0",
+    "ai": "^6.0.191",
     "axios": "1.13.6",
     "class-variance-authority": "0.7.1",
     "clsx": "2.1.1",

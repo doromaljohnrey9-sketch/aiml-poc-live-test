@@ -38,6 +38,8 @@ export async function formatContentForChannels(generatedContentId: string) {
   };
 }
 
+// TODO: Enable LinkedIn distribution in V2 - currently disabled per PRD V1 scope
+// LinkedIn API integration pending OAuth setup and token management
 export async function publishToLinkedIn(content: string) {
   "use step";
   // TODO: Call LinkedIn API
@@ -46,6 +48,8 @@ export async function publishToLinkedIn(content: string) {
   return { postId: "linkedin-post-123" };
 }
 
+// TODO: Enable Blog distribution in V2 - currently disabled per PRD V1 scope
+// CMS integration (Sanity/Contentful) pending
 export async function publishToBlog(content: string, generatedContentId: string) {
   "use step";
 

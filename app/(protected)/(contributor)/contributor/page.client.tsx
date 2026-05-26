@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useContributorSources } from "@/hooks/contributor/use-contributor-sources";
 import { SubmissionsPageHeader } from "@/components/contributor/submissions/SubmissionsPageHeader";
-import { SubmissionsFilters } from "@/components/contributor/submissions/SubmissionsFilters";
+import { TableFilters } from "@/components/shared/TableFilters";
 import { SubmissionsTable } from "@/components/contributor/submissions/SubmissionsTable";
 import { createSubmissionsColumns } from "@/components/contributor/submissions/SubmissionsColumns";
 import { SubmitContentDialog } from "@/components/contributor/submissions/dialog/SubmitContentDialog";
@@ -47,14 +47,34 @@ export default function ContributorPageClient() {
   return (
     <div className="flex-1 space-y-6 p-8">
       <SubmissionsPageHeader onCreateNew={() => setIsDialogOpen(true)} />
-      <SubmissionsFilters
+      <TableFilters
         search={search}
-        statusFilter={statusFilter}
-        languageFilter={languageFilter}
+        filters={{
+          status: {
+            value: statusFilter,
+            onChange: handleStatusFilterChange,
+            placeholder: "Filter by status",
+            options: [
+              { value: "all", label: "All Status" },
+              { value: "pending", label: "Pending" },
+              { value: "processing", label: "Processing" },
+              { value: "processed", label: "Processed" },
+              { value: "failed", label: "Failed" },
+            ],
+          },
+          language: {
+            value: languageFilter,
+            onChange: handleLanguageFilterChange,
+            placeholder: "Filter by language",
+            options: [
+              { value: "all", label: "All Languages" },
+              { value: "en", label: "English" },
+              { value: "ko", label: "Korean" },
+            ],
+          },
+        }}
         onSearchChange={handleSearchChange}
         onSearchSubmit={handleSearchSubmit}
-        onStatusFilterChange={handleStatusFilterChange}
-        onLanguageFilterChange={handleLanguageFilterChange}
       />
       <SubmissionsTable
         columns={columns}

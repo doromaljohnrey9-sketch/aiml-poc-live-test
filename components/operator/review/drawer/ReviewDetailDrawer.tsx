@@ -129,10 +129,14 @@ export function ReviewDetailDrawer({
                     </div>
                   </div>
                   {detail.channelFormats ? (
-                    <Tabs defaultValue="linkedin" className="w-full">
+                    <Tabs defaultValue="newsletter" className="w-full">
                       <TabsList className="grid w-full grid-cols-3">
-                        <TabsTrigger value="linkedin">LinkedIn</TabsTrigger>
-                        <TabsTrigger value="blog">Blog</TabsTrigger>
+                        <TabsTrigger value="linkedin" disabled={true}>
+                          LinkedIn (V2)
+                        </TabsTrigger>
+                        <TabsTrigger value="blog" disabled={true}>
+                          Blog (V2)
+                        </TabsTrigger>
                         <TabsTrigger value="newsletter">Newsletter</TabsTrigger>
                       </TabsList>
                       <TabsContent value="linkedin" className="mt-4">
@@ -168,15 +172,55 @@ export function ReviewDetailDrawer({
                       <TabsContent value="newsletter" className="mt-4">
                         <div className="p-4 bg-muted/50 rounded-lg border">
                           <div className="text-sm whitespace-pre-wrap break-words max-h-96 overflow-y-auto">
-                            {
-                              (
-                                detail.channelFormats as {
-                                  linkedin: string;
-                                  blog: string;
-                                  newsletter: string;
-                                }
-                              ).newsletter
-                            }
+                            {(() => {
+                              const newsletter = (detail.channelFormats as any)?.newsletter;
+                              if (typeof newsletter === "string") {
+                                return newsletter;
+                              }
+                              if (typeof newsletter === "object" && newsletter !== null) {
+                                return (
+                                  <div className="flex flex-col gap-3">
+                                    {newsletter.subject && (
+                                      <div>
+                                        <strong>Subject:</strong> {newsletter.subject}
+                                      </div>
+                                    )}
+                                    {newsletter.preview && (
+                                      <div>
+                                        <strong>Preview:</strong> {newsletter.preview}
+                                      </div>
+                                    )}
+                                    {newsletter.title && (
+                                      <div>
+                                        <strong>Title:</strong> {newsletter.title}
+                                      </div>
+                                    )}
+                                    {newsletter.body && (
+                                      <div>
+                                        <strong>Body:</strong>
+                                        <div className="mt-1">{newsletter.body}</div>
+                                      </div>
+                                    )}
+                                    {newsletter.cta && (
+                                      <div>
+                                        <strong>CTA:</strong> {newsletter.cta}
+                                      </div>
+                                    )}
+                                    {newsletter.callout && (
+                                      <div>
+                                        <strong>Callout:</strong> {newsletter.callout}
+                                      </div>
+                                    )}
+                                    {newsletter.quote && (
+                                      <div>
+                                        <strong>Quote:</strong> {newsletter.quote}
+                                      </div>
+                                    )}
+                                  </div>
+                                );
+                              }
+                              return "No newsletter content";
+                            })()}
                           </div>
                         </div>
                       </TabsContent>

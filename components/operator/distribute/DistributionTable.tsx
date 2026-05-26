@@ -16,6 +16,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
+import { TablePagination } from "@/components/shared/TablePagination";
 import { useState } from "react";
 import type { DistributionQueueItem } from "./DistributionColumns";
 
@@ -24,9 +25,22 @@ interface DistributionTableProps {
   data: DistributionQueueItem[];
   isLoading: boolean;
   onRowClick?: (itemId: string) => void;
+  pagination?: {
+    page: number;
+    pageSize: number;
+    total: number;
+    totalPages: number;
+    onPageChange: (page: number) => void;
+  };
 }
 
-export function DistributionTable({ columns, data, isLoading, onRowClick }: DistributionTableProps) {
+export function DistributionTable({
+  columns,
+  data,
+  isLoading,
+  onRowClick,
+  pagination,
+}: DistributionTableProps) {
   const [sorting, setSorting] = useState<SortingState>([{ id: "createdAt", desc: true }]);
 
   const table = useReactTable({
@@ -92,13 +106,16 @@ export function DistributionTable({ columns, data, isLoading, onRowClick }: Dist
               <TableCell colSpan={columns.length} className="h-24 text-center">
                 <div className="text-muted-foreground">
                   <p className="text-sm font-medium">No content ready for distribution</p>
-                  <p className="text-xs">All approved content has been distributed. Check back soon!</p>
+                  <p className="text-xs">
+                    All approved content has been distributed. Check back soon!
+                  </p>
                 </div>
               </TableCell>
             </TableRow>
           )}
         </TableBody>
       </Table>
+      {pagination && <TablePagination {...pagination} />}
     </div>
   );
 }

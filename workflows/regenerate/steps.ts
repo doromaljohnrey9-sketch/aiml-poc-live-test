@@ -5,6 +5,9 @@ import { contentSources } from "@/drizzle/schemas/content-sources/content-source
 import { reviewStatuses } from "@/drizzle/schemas/review-statuses/review-statuses.schema";
 import { eq } from "drizzle-orm";
 import { notifyOperators as notifyOps } from "../shared/notifyOperators";
+import { generateObject } from "ai";
+import { google } from "@ai-sdk/google";
+import { GeneratedContentSchema, type GeneratedContent } from "../shared/contentSchemas";
 
 export async function fetchContentSource(generatedContentId: string) {
   "use step";
@@ -55,28 +58,30 @@ export async function generateContent(
 
   console.log(`Generating content in ${language}`);
 
-  // Mock AI generation - simulates GPT-4 response
-  const mockContent = {
-    linkedin:
-      language === "ko"
-        ? `AI 생성 콘텐츠 - ${extractedText.substring(0, 50)}... 기반 링크드인 게시물입니다.`
-        : `AI-generated content - LinkedIn post based on: ${extractedText.substring(0, 50)}...`,
-    blog:
-      language === "ko"
-        ? `AI 생성 콘텐츠 - ${extractedText.substring(0, 50)}... 기반 블로그 게시물입니다. 이것은 테스트용 모의 데이터입니다.`
-        : `AI-generated content - Blog post based on: ${extractedText.substring(0, 50)}... This is mock data for testing.`,
-    newsletter:
-      language === "ko"
-        ? `AI 생성 콘텐츠 - ${extractedText.substring(0, 50)}... 기반 뉴스레터입니다.`
-        : `AI-generated content - Newsletter based on: ${extractedText.substring(0, 50)}...`,
-  };
+  const apiKey = process.env.GOOGLE_GENERATIVE_AI_API_KEY;
+  if (!apiKey) {
+    throw new FatalError("GOOGLE_GENERATIVE_AI_API_KEY is not set");
+  }
 
-  return mockContent;
+  const languageName = language === "ko" ? "Korean" : "English";
+
+  const { object } = await generateObject({
+    model: google("gemini-2.5-flash"),
+    system: `You are a professional content marketer. Generate engaging, structured content for multiple channels in ${languageName}.
+    Create distinct content for each platform with appropriate tone and formatting.`,
+    prompt: `Generate structured LinkedIn, blog, and newsletter content based on the following source material:
+
+    Source text: ${extractedText}
+    ${contextNote ? `Context note: ${contextNote}` : ""}`,
+    schema: GeneratedContentSchema,
+  });
+
+  return object;
 }
 
 export async function storeGeneratedContent(
   contentSourceId: string,
-  content: { linkedin: string; blog: string; newsletter: string },
+  content: GeneratedContent,
   language: string
 ) {
   "use step";
@@ -90,7 +95,7 @@ export async function storeGeneratedContent(
       channelFormats: content,
       language,
       generationAttempt: 1,
-      modelUsed: "gpt-4",
+      modelUsed: "gemini-2.5-flash",
       bannedPhraseHit: false,
     })
     .returning();

@@ -16,8 +16,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Button } from "@/components/ui/button";
-import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
+import { TablePagination } from "@/components/shared/TablePagination";
 import { useState } from "react";
 import { SubmissionDetailDrawer } from "./drawer/SubmissionDetailDrawer";
 import { ContentSource } from "@/types/contributor.types";
@@ -108,38 +107,7 @@ export function SubmissionsTable<TData, TValue>({
           )}
         </TableBody>
       </Table>
-      {pagination && (
-        <div className="flex items-center justify-between px-4 py-3 border-t">
-          <div className="text-sm text-muted-foreground">
-            Showing {(pagination.page - 1) * pagination.pageSize + 1} to{" "}
-            {Math.min(pagination.page * pagination.pageSize, pagination.total)} of{" "}
-            {pagination.total} submissions
-          </div>
-          <div className="flex items-center gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => pagination.onPageChange(pagination.page - 1)}
-              disabled={pagination.page === 1}
-            >
-              <ChevronLeftIcon className="h-4 w-4" />
-              Previous
-            </Button>
-            <div className="text-sm">
-              Page {pagination.page} of {pagination.totalPages}
-            </div>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => pagination.onPageChange(pagination.page + 1)}
-              disabled={pagination.page === pagination.totalPages}
-            >
-              Next
-              <ChevronRightIcon className="h-4 w-4" />
-            </Button>
-          </div>
-        </div>
-      )}
+      {pagination && <TablePagination {...pagination} />}
       <SubmissionDetailDrawer
         open={!!selectedRow}
         onOpenChange={(open) => !open && setSelectedRow(null)}

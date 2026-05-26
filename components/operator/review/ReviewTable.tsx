@@ -16,6 +16,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
+import { TablePagination } from "@/components/shared/TablePagination";
 import { useState } from "react";
 import type { ReviewQueueItem } from "./ReviewColumns";
 
@@ -24,9 +25,22 @@ interface ReviewTableProps {
   data: ReviewQueueItem[];
   isLoading: boolean;
   onRowClick?: (itemId: string) => void;
+  pagination?: {
+    page: number;
+    pageSize: number;
+    total: number;
+    totalPages: number;
+    onPageChange: (page: number) => void;
+  };
 }
 
-export function ReviewTable({ columns, data, isLoading, onRowClick }: ReviewTableProps) {
+export function ReviewTable({
+  columns,
+  data,
+  isLoading,
+  onRowClick,
+  pagination,
+}: ReviewTableProps) {
   const [sorting, setSorting] = useState<SortingState>([{ id: "createdAt", desc: true }]);
 
   const table = useReactTable({
@@ -99,6 +113,7 @@ export function ReviewTable({ columns, data, isLoading, onRowClick }: ReviewTabl
           )}
         </TableBody>
       </Table>
+      {pagination && <TablePagination {...pagination} />}
     </div>
   );
 }

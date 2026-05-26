@@ -162,15 +162,16 @@ export function LogDetailDrawer({ log, onClose }: LogDetailDrawerProps) {
                       {detail.language && <Badge variant="secondary">{detail.language}</Badge>}
                     </div>
                     <p className="text-sm line-clamp-3">
-                      {detail.channelFormats
-                        ? (
-                            detail.channelFormats as {
-                              linkedin: string;
-                              blog: string;
-                              newsletter: string;
-                            }
-                          ).linkedin
-                        : detail.generatedText}
+                      {(() => {
+                        if (!detail.channelFormats) return detail.generatedText;
+                        const formats = detail.channelFormats as any;
+                        const linkedin = formats.linkedin;
+                        if (typeof linkedin === "string") return linkedin;
+                        if (typeof linkedin === "object" && linkedin !== null) {
+                          return linkedin.post || JSON.stringify(linkedin);
+                        }
+                        return detail.generatedText;
+                      })()}
                     </p>
                   </div>
                 ) : (
