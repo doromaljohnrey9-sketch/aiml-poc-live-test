@@ -214,7 +214,31 @@ export async function submitReview(input: ReviewInput) {
     throw new Error("Review not found or already reviewed");
   }
 
-  // TODO: If rejected -> start aimlRegenerate workflow (Vercel Workflows)
+  // If rejected, trigger the regenerate workflow asynchronously
+  if (input.status === "rejected") {
+    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+    const workflowSecret = process.env.WORKFLOW_SECRET;
+
+    try {
+      const headers: HeadersInit = {
+        "Content-Type": "application/json",
+      };
+
+      // Add authorization if WORKFLOW_SECRET is set
+      if (workflowSecret) {
+        headers["Authorization"] = `Bearer ${workflowSecret}`;
+      }
+
+      await fetch(`${baseUrl}/api/workflows/regenerate`, {
+        method: "POST",
+        headers,
+        body: JSON.stringify({ generatedContentId: input.generated_content_id }),
+      });
+    } catch (error) {
+      console.error("Failed to trigger regenerate workflow:", error);
+      // Don't throw - the review was successful even if workflow trigger failed
+    }
+  }
 
   return {
     id: updated.id,
