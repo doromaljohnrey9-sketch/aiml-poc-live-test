@@ -20,7 +20,7 @@ export const reviewStatuses = pgTable(
     checkboxFactual: boolean("checkbox_factual"),
     checkboxNdaSafe: boolean("checkbox_nda_safe"),
     checkboxTone: boolean("checkbox_tone"),
-    rejectionReason: text("rejection_reason"),
+    rejectionReason: text("rejection_reason"), // predefined enum: 'inaccurate' | 'nda_violation' | 'inappropriate_tone' | 'poor_quality' | 'off_brand' | 'missing_context' | 'other'
     reviewedAt: timestamp("reviewed_at"),
   },
   (table) => ({

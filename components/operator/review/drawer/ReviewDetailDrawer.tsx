@@ -13,6 +13,13 @@ import {
 } from "@/components/ui/drawer";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -25,9 +32,11 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { CheckCircleIcon, XCircleIcon, Loader2Icon, XIcon } from "lucide-react";
+import { CheckCircle, XCircle, Loader2, X, Check, ShieldCheck, Sparkles } from "lucide-react";
 import { toast } from "sonner";
+import { cn } from "@/lib/utils";
 import type { ReviewInput } from "@/types/review.types";
+import { REJECTION_REASONS } from "@/constants/rejection-reasons.constant";
 import { EmailTemplatePreview } from "@/components/operator/preview/EmailTemplatePreview";
 
 interface ChannelFormats {
@@ -68,11 +77,14 @@ export function ReviewDetailDrawer({
     ndaSafe: false,
     tone: false,
   });
-  const [rejectionReason, setRejectionReason] = useState("");
+  const [rejectionReason, setRejectionReason] = useState<
+    "" | (typeof REJECTION_REASONS)[number]["value"]
+  >("");
+  const [customReason, setCustomReason] = useState("");
 
   const isFormValid = isApproving
     ? checkboxes.factual && checkboxes.ndaSafe && checkboxes.tone
-    : rejectionReason.trim().length > 0;
+    : rejectionReason !== "" && (rejectionReason !== "other" || customReason.trim().length > 0);
 
   const handleToggleCheckbox = (key: keyof typeof checkboxes) => {
     setCheckboxes((prev) => ({ ...prev, [key]: !prev[key] }));
@@ -92,7 +104,12 @@ export function ReviewDetailDrawer({
       checkbox_factual: isApproving ? checkboxes.factual : undefined,
       checkbox_nda_safe: isApproving ? checkboxes.ndaSafe : undefined,
       checkbox_tone: isApproving ? checkboxes.tone : undefined,
-      rejection_reason: !isApproving ? rejectionReason : undefined,
+      rejection_reason:
+        !isApproving && rejectionReason
+          ? rejectionReason === "other"
+            ? customReason
+            : rejectionReason
+          : undefined,
     };
 
     onSubmitReview(input);
@@ -103,6 +120,7 @@ export function ReviewDetailDrawer({
     setIsApproving(true);
     setCheckboxes({ factual: false, ndaSafe: false, tone: false });
     setRejectionReason("");
+    setCustomReason("");
     onClose();
   };
 
@@ -116,7 +134,7 @@ export function ReviewDetailDrawer({
               <DrawerDescription>Review and approve or reject generated content</DrawerDescription>
             </div>
             <Button variant="ghost" size="icon" className="h-8 w-8" onClick={handleClose}>
-              <XIcon className="h-4 w-4" />
+              <X className="size-4" />
             </Button>
           </div>
         </DrawerHeader>
@@ -218,65 +236,139 @@ export function ReviewDetailDrawer({
             >
               <TabsList className="grid w-full grid-cols-2">
                 <TabsTrigger value="approve">
-                  <CheckCircleIcon className="h-4 w-4 mr-2" />
+                  <CheckCircle className="size-4 mr-2" />
                   Approve
                 </TabsTrigger>
                 <TabsTrigger value="reject">
-                  <XCircleIcon className="h-4 w-4 mr-2" />
+                  <XCircle className="size-4 mr-2" />
                   Reject
                 </TabsTrigger>
               </TabsList>
 
               <TabsContent value="approve">
-                <div className="flex flex-col gap-3 p-4 bg-muted/50 rounded-lg border">
+                <div className="flex flex-col gap-4">
                   <p className="text-sm font-semibold text-foreground">Approval Checklist</p>
                   <div className="flex flex-col gap-3">
-                    <label className="flex items-center gap-3 cursor-pointer">
+                    <label className="flex items-start gap-3 cursor-pointer p-3 rounded-lg border hover:bg-accent/50 transition-colors">
                       <Checkbox
                         checked={checkboxes.factual}
                         onCheckedChange={() => handleToggleCheckbox("factual")}
+                        className="mt-0.5"
                       />
-                      <span className="text-sm">
-                        <strong>Factually Accurate:</strong> Content is factually correct and
-                        verifiable
-                      </span>
+                      <Check className="size-4 text-foreground mt-0.5 shrink-0" />
+                      <div className="flex flex-col gap-1">
+                        <span className="text-sm font-medium">Factually Accurate</span>
+                        <span className="text-xs text-muted-foreground">
+                          Content is factually correct and verifiable
+                        </span>
+                      </div>
                     </label>
-                    <label className="flex items-center gap-3 cursor-pointer">
+                    <label className="flex items-start gap-3 cursor-pointer p-3 rounded-lg border hover:bg-accent/50 transition-colors">
                       <Checkbox
                         checked={checkboxes.ndaSafe}
                         onCheckedChange={() => handleToggleCheckbox("ndaSafe")}
+                        className="mt-0.5"
                       />
-                      <span className="text-sm">
-                        <strong>NDA Safe:</strong> No confidential or proprietary information
-                        disclosed
-                      </span>
+                      <ShieldCheck className="size-4 text-foreground mt-0.5 shrink-0" />
+                      <div className="flex flex-col gap-1">
+                        <span className="text-sm font-medium">NDA Safe</span>
+                        <span className="text-xs text-muted-foreground">
+                          No confidential or proprietary information disclosed
+                        </span>
+                      </div>
                     </label>
-                    <label className="flex items-center gap-3 cursor-pointer">
+                    <label className="flex items-start gap-3 cursor-pointer p-3 rounded-lg border hover:bg-accent/50 transition-colors">
                       <Checkbox
                         checked={checkboxes.tone}
                         onCheckedChange={() => handleToggleCheckbox("tone")}
+                        className="mt-0.5"
                       />
-                      <span className="text-sm">
-                        <strong>Appropriate Tone:</strong> Tone and messaging align with brand
-                        standards
-                      </span>
+                      <Sparkles className="size-4 text-foreground mt-0.5 shrink-0" />
+                      <div className="flex flex-col gap-1">
+                        <span className="text-sm font-medium">Appropriate Tone</span>
+                        <span className="text-xs text-muted-foreground">
+                          Tone and messaging align with brand standards
+                        </span>
+                      </div>
                     </label>
                   </div>
                 </div>
               </TabsContent>
 
               <TabsContent value="reject">
-                <div className="flex flex-col gap-3 p-4 bg-muted/50 rounded-lg border">
-                  <label htmlFor="rejection-reason" className="text-sm font-semibold">
-                    Rejection Reason
-                  </label>
-                  <Textarea
-                    id="rejection-reason"
-                    placeholder="Explain why this content is being rejected..."
-                    value={rejectionReason}
-                    onChange={(e) => setRejectionReason(e.target.value)}
-                    className="min-h-24 resize-none"
-                  />
+                <div className="flex flex-col gap-4">
+                  <div>
+                    <label htmlFor="rejection-reason" className="text-sm font-semibold mb-2 block">
+                      Rejection Reason
+                    </label>
+                    <Select
+                      value={rejectionReason}
+                      onValueChange={(value) => {
+                        setRejectionReason(
+                          value as "" | (typeof REJECTION_REASONS)[number]["value"]
+                        );
+                        if (value !== "other") {
+                          setCustomReason("");
+                        }
+                      }}
+                    >
+                      <SelectTrigger id="rejection-reason" className="w-full">
+                        <SelectValue placeholder="Choose a reason...">
+                          {rejectionReason ? (
+                            <div className="flex items-center gap-2">
+                              {(() => {
+                                const Icon = REJECTION_REASONS.find(
+                                  (r) => r.value === rejectionReason
+                                )?.icon;
+                                return Icon ? <Icon className="size-4 text-destructive" /> : null;
+                              })()}
+                              <span className="font-medium text-sm">
+                                {REJECTION_REASONS.find((r) => r.value === rejectionReason)?.label}
+                              </span>
+                            </div>
+                          ) : null}
+                        </SelectValue>
+                      </SelectTrigger>
+                      <SelectContent className="max-h-80">
+                        {REJECTION_REASONS.map((reason) => {
+                          const Icon = reason.icon;
+                          return (
+                            <SelectItem
+                              key={reason.value}
+                              value={reason.value}
+                              className="focus:bg-accent cursor-pointer"
+                            >
+                              <div className="flex items-start gap-3 py-1">
+                                <div className="mt-0.5 shrink-0">
+                                  <Icon className="size-4 text-destructive" />
+                                </div>
+                                <div className="flex flex-col gap-0.5">
+                                  <span className="font-medium text-sm">{reason.label}</span>
+                                  <span className="text-xs text-muted-foreground leading-tight">
+                                    {reason.description}
+                                  </span>
+                                </div>
+                              </div>
+                            </SelectItem>
+                          );
+                        })}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  {rejectionReason === "other" && (
+                    <div className="flex flex-col gap-2 animate-in fade-in slide-in-from-top-2 duration-200">
+                      <label htmlFor="custom-reason" className="text-sm font-medium">
+                        Please specify the reason
+                      </label>
+                      <Textarea
+                        id="custom-reason"
+                        placeholder="Enter the specific reason for rejection..."
+                        value={customReason}
+                        onChange={(e) => setCustomReason(e.target.value)}
+                        className="min-h-24 resize-none focus:ring-2 focus:ring-primary"
+                      />
+                    </div>
+                  )}
                 </div>
               </TabsContent>
             </Tabs>
@@ -291,7 +383,7 @@ export function ReviewDetailDrawer({
               disabled={!isFormValid || isSubmitting || isLoading}
               variant={isApproving ? "default" : "destructive"}
             >
-              {isSubmitting && <Loader2Icon className="h-4 w-4 mr-2 animate-spin" />}
+              {isSubmitting && <Loader2 className="size-4 mr-2 animate-spin" />}
               {isApproving ? "Confirm Approve" : "Confirm Reject"}
             </Button>
           </DialogFooter>
