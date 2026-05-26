@@ -23,9 +23,7 @@ export default function Error({
         </div>
         <div className="space-y-2">
           <h2 className="text-2xl font-bold">Something went wrong</h2>
-          <p className="text-muted-foreground">
-            Failed to load activity logs. Please try again.
-          </p>
+          <p className="text-muted-foreground">Failed to load activity logs. Please try again.</p>
         </div>
         <Button onClick={reset} variant="outline" className="gap-2">
           <RefreshCwIcon className="h-4 w-4" />

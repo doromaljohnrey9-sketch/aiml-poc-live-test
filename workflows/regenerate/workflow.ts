@@ -15,7 +15,7 @@ export async function aimlRegenerate(generatedContentId: string) {
   const regenerated = await generateContent(
     contentSource.extractedText,
     contentSource.contextNote,
-    contentSource.language,
+    contentSource.language
   );
 
   // Store the new generated content

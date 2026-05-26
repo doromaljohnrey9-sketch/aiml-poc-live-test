@@ -29,6 +29,23 @@ import { CalendarIcon, Loader2Icon, XIcon } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import type { PublishInput } from "@/hooks/operator/use-operator-distribution";
+import { EmailTemplatePreview } from "@/components/operator/templates/EmailTemplatePreview";
+
+interface ChannelFormats {
+  linkedin?: string;
+  blog?: string;
+  newsletter?:
+    | string
+    | {
+        subject?: string;
+        preview?: string;
+        title?: string;
+        body?: string;
+        cta?: string;
+        callout?: string;
+        quote?: string;
+      };
+}
 
 interface DistributionDetailDrawerProps {
   contentId: string;
@@ -79,150 +96,83 @@ export function DistributionDetailDrawer({
 
   return (
     <Drawer open={!!contentId} onOpenChange={handleClose} direction="right">
-      <DrawerContent className="h-full">
-        <div className="flex flex-col h-full">
-          <DrawerHeader className="border-b px-6 py-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <DrawerTitle>Distribute Content</DrawerTitle>
-              </div>
-              <Button variant="ghost" size="icon" className="h-8 w-8" onClick={handleClose}>
-                <XIcon className="h-4 w-4" />
-              </Button>
+      <DrawerContent className="max-h-screen flex flex-col">
+        <DrawerHeader className="border-b px-6 py-4 shrink-0">
+          <div className="flex items-center justify-between">
+            <div>
+              <DrawerTitle>Distribute Content</DrawerTitle>
             </div>
-          </DrawerHeader>
+            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={handleClose}>
+              <XIcon className="h-4 w-4" />
+            </Button>
+          </div>
+        </DrawerHeader>
 
-          <div className="flex-1 overflow-y-auto px-6 py-6 flex flex-col gap-6">
-            {isLoading ? (
-              <div className="flex flex-col gap-4">
-                <Skeleton className="h-24 w-full" />
-                <Skeleton className="h-32 w-full" />
-              </div>
-            ) : !detail ? (
-              <div className="text-center py-8">
-                <p className="text-muted-foreground">Content not found</p>
-              </div>
-            ) : (
-              <>
-                {/* Content Preview */}
-                <div className="flex flex-col gap-3">
-                  <div className="flex items-center justify-between">
-                    <h3 className="font-semibold">Generated Content</h3>
-                    <div className="flex gap-2">
-                      {detail.language && <Badge variant="secondary">{detail.language}</Badge>}
+        <div className="flex-1 px-6 py-6 flex flex-col gap-6 min-h-0 overflow-hidden">
+          {isLoading ? (
+            <div className="flex flex-col gap-4">
+              <Skeleton className="h-24 w-full" />
+              <Skeleton className="h-32 w-full" />
+            </div>
+          ) : !detail ? (
+            <div className="text-center py-8">
+              <p className="text-muted-foreground">Content not found</p>
+            </div>
+          ) : (
+            <>
+              {/* Content Preview */}
+              <div className="flex flex-col gap-3 min-h-0">
+                <div className="flex items-center justify-between">
+                  <h3 className="font-semibold">Generated Content</h3>
+                  <div className="flex gap-2">
+                    {detail.language && <Badge variant="secondary">{detail.language}</Badge>}
+                  </div>
+                </div>
+                {detail.channelFormats ? (
+                  <Tabs defaultValue="newsletter" className="w-full flex flex-col min-h-0">
+                    <TabsList className="grid w-full grid-cols-3">
+                      <TabsTrigger value="linkedin" disabled={true}>
+                        LinkedIn (V2)
+                      </TabsTrigger>
+                      <TabsTrigger value="blog" disabled={true}>
+                        Blog (V2)
+                      </TabsTrigger>
+                      <TabsTrigger value="newsletter">Newsletter</TabsTrigger>
+                    </TabsList>
+                    <TabsContent value="linkedin" className="mt-4 min-h-0">
+                      <div className="p-4 bg-muted/50 rounded-lg border">
+                        <div className="text-sm whitespace-pre-wrap wrap-break-word max-h-96 overflow-y-auto">
+                          {(detail.channelFormats as ChannelFormats)?.linkedin ||
+                            "No LinkedIn content"}
+                        </div>
+                      </div>
+                    </TabsContent>
+                    <TabsContent value="blog" className="mt-4 min-h-0">
+                      <div className="p-4 bg-muted/50 rounded-lg border">
+                        <div className="text-sm whitespace-pre-wrap wrap-break-word max-h-96 overflow-y-auto">
+                          {(detail.channelFormats as ChannelFormats)?.blog || "No blog content"}
+                        </div>
+                      </div>
+                    </TabsContent>
+                    <TabsContent value="newsletter" className="mt-4 min-h-0 overflow-y-auto">
+                      <EmailTemplatePreview
+                        data={(detail.channelFormats as ChannelFormats)?.newsletter || ""}
+                      />
+                    </TabsContent>
+                  </Tabs>
+                ) : (
+                  <div className="p-4 bg-muted/50 rounded-lg border">
+                    <div className="text-sm whitespace-pre-wrap wrap-break-word max-h-96 overflow-y-auto">
+                      {detail.generatedText}
                     </div>
                   </div>
-                  {detail.channelFormats ? (
-                    <Tabs defaultValue="newsletter" className="w-full">
-                      <TabsList className="grid w-full grid-cols-3">
-                        <TabsTrigger value="linkedin" disabled={true}>
-                          LinkedIn (V2)
-                        </TabsTrigger>
-                        <TabsTrigger value="blog" disabled={true}>
-                          Blog (V2)
-                        </TabsTrigger>
-                        <TabsTrigger value="newsletter">Newsletter</TabsTrigger>
-                      </TabsList>
-                      <TabsContent value="linkedin" className="mt-4">
-                        <div className="p-4 bg-muted/50 rounded-lg border">
-                          <div className="text-sm whitespace-pre-wrap wrap-break-word max-h-96 overflow-y-auto">
-                            {
-                              (
-                                detail.channelFormats as {
-                                  linkedin: string;
-                                  blog: string;
-                                  newsletter: string;
-                                }
-                              ).linkedin
-                            }
-                          </div>
-                        </div>
-                      </TabsContent>
-                      <TabsContent value="blog" className="mt-4">
-                        <div className="p-4 bg-muted/50 rounded-lg border">
-                          <div className="text-sm whitespace-pre-wrap wrap-break-word max-h-96 overflow-y-auto">
-                            {
-                              (
-                                detail.channelFormats as {
-                                  linkedin: string;
-                                  blog: string;
-                                  newsletter: string;
-                                }
-                              ).blog
-                            }
-                          </div>
-                        </div>
-                      </TabsContent>
-                      <TabsContent value="newsletter" className="mt-4">
-                        <div className="p-4 bg-muted/50 rounded-lg border">
-                          <div className="text-sm whitespace-pre-wrap wrap-break-word max-h-96 overflow-y-auto">
-                            {(() => {
-                              const newsletter = (detail.channelFormats as any)?.newsletter;
-                              if (typeof newsletter === "string") {
-                                return newsletter;
-                              }
-                              if (typeof newsletter === "object" && newsletter !== null) {
-                                return (
-                                  <div className="flex flex-col gap-3">
-                                    {newsletter.subject && (
-                                      <div>
-                                        <strong>Subject:</strong> {newsletter.subject}
-                                      </div>
-                                    )}
-                                    {newsletter.preview && (
-                                      <div>
-                                        <strong>Preview:</strong> {newsletter.preview}
-                                      </div>
-                                    )}
-                                    {newsletter.title && (
-                                      <div>
-                                        <strong>Title:</strong> {newsletter.title}
-                                      </div>
-                                    )}
-                                    {newsletter.body && (
-                                      <div>
-                                        <strong>Body:</strong>
-                                        <div className="mt-1">{newsletter.body}</div>
-                                      </div>
-                                    )}
-                                    {newsletter.cta && (
-                                      <div>
-                                        <strong>CTA:</strong> {newsletter.cta}
-                                      </div>
-                                    )}
-                                    {newsletter.callout && (
-                                      <div>
-                                        <strong>Callout:</strong> {newsletter.callout}
-                                      </div>
-                                    )}
-                                    {newsletter.quote && (
-                                      <div>
-                                        <strong>Quote:</strong> {newsletter.quote}
-                                      </div>
-                                    )}
-                                  </div>
-                                );
-                              }
-                              return "No newsletter content";
-                            })()}
-                          </div>
-                        </div>
-                      </TabsContent>
-                    </Tabs>
-                  ) : (
-                    <div className="p-4 bg-muted/50 rounded-lg border">
-                      <div className="text-sm whitespace-pre-wrap wrap-break-word max-h-96 overflow-y-auto">
-                        {detail.generatedText}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </>
-            )}
-          </div>
+                )}
+              </div>
+            </>
+          )}
         </div>
 
-        <DrawerFooter className="border-t px-6 py-4">
+        <DrawerFooter className="border-t px-6 py-4 shrink-0">
           <div className="flex gap-2">
             <Button variant="outline" onClick={handleClose} disabled={isPublishing}>
               Cancel
