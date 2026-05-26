@@ -1,3 +1,4 @@
+import { sleep } from "workflow";
 import {
   formatContentForChannels,
   publishToLinkedIn,
@@ -7,8 +8,24 @@ import {
   markSourceAsDistributed,
 } from "./steps";
 
-export async function aimlDistribute(generatedContentId: string, channels: string[]) {
+export async function aimlDistribute(
+  generatedContentId: string,
+  channels: string[],
+  scheduledAt?: string | null
+) {
   "use workflow";
+
+  // If scheduled, sleep until the scheduled time
+  if (scheduledAt) {
+    const scheduledDate = new Date(scheduledAt);
+    const now = new Date();
+    const delayMs = scheduledDate.getTime() - now.getTime();
+
+    if (delayMs > 0) {
+      // Sleep until the scheduled time
+      await sleep(delayMs);
+    }
+  }
 
   const content = await formatContentForChannels(generatedContentId);
 

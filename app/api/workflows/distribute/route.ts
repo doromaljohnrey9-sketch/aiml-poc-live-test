@@ -13,7 +13,7 @@ export async function POST(request: Request) {
 
   try {
     const body = await request.json();
-    const { generatedContentId, channels } = body;
+    const { generatedContentId, channels, scheduledAt } = body;
 
     if (!generatedContentId || !channels || !Array.isArray(channels)) {
       return NextResponse.json(
@@ -23,12 +23,13 @@ export async function POST(request: Request) {
     }
 
     // Trigger the distribute workflow asynchronously
-    await start(aimlDistribute, [generatedContentId, channels]);
+    await start(aimlDistribute, [generatedContentId, channels, scheduledAt]);
 
     return NextResponse.json({
       message: "Distribute workflow started",
       generatedContentId,
       channels,
+      scheduledAt,
     });
   } catch (error) {
     console.error("Failed to start distribute workflow:", error);

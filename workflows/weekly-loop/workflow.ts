@@ -1,3 +1,5 @@
+// import { sleep } from "workflow";
+import { getNextScheduledRun } from "@/lib/workflow/scheduler";
 import {
   fetchLoopConfig,
   fetchPendingSources,
@@ -18,6 +20,20 @@ export async function aimlWeeklyLoop() {
     console.log("Weekly loop is disabled. Aborting.");
     return;
   }
+
+  // Calculate next scheduled run time based on system_config
+  const nextRun = getNextScheduledRun(config.loopDay, config.loopTime);
+  const now = new Date();
+  const delayMs = nextRun.getTime() - now.getTime();
+
+  // Sleep until the scheduled time if it's in the future
+  // TODO: Uncomment after testing
+  // if (delayMs > 0) {
+  //   console.log(
+  //     `Sleeping until ${nextRun.toISOString()} (${config.loopDay} at ${config.loopTime} UTC)`
+  //   );
+  //   await sleep(delayMs);
+  // }
 
   const sources = await fetchPendingSources();
 

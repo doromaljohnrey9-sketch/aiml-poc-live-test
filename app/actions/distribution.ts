@@ -199,33 +199,32 @@ export async function publishContent(input: {
 
   const inserted = await db.insert(distributionLogs).values(entries).returning();
 
-  // Trigger aimlDistribute workflow for immediate publish when scheduled_at is null
-  if (!input.scheduled_at) {
-    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
-    const workflowSecret = process.env.WORKFLOW_SECRET;
+  // Always trigger aimlDistribute workflow - it will handle scheduling via sleep
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+  const workflowSecret = process.env.WORKFLOW_SECRET;
 
-    try {
-      const headers: HeadersInit = {
-        "Content-Type": "application/json",
-      };
+  try {
+    const headers: HeadersInit = {
+      "Content-Type": "application/json",
+    };
 
-      // Add authorization if WORKFLOW_SECRET is set
-      if (workflowSecret) {
-        headers["Authorization"] = `Bearer ${workflowSecret}`;
-      }
-
-      await fetch(`${baseUrl}/api/workflows/distribute`, {
-        method: "POST",
-        headers,
-        body: JSON.stringify({
-          generatedContentId: input.generated_content_id,
-          channels: activeChannels,
-        }),
-      });
-    } catch (error) {
-      console.error("Failed to trigger distribute workflow:", error);
-      // Don't throw - the distribution log was created even if workflow trigger failed
+    // Add authorization if WORKFLOW_SECRET is set
+    if (workflowSecret) {
+      headers["Authorization"] = `Bearer ${workflowSecret}`;
     }
+
+    await fetch(`${baseUrl}/api/workflows/distribute`, {
+      method: "POST",
+      headers,
+      body: JSON.stringify({
+        generatedContentId: input.generated_content_id,
+        channels: activeChannels,
+        scheduledAt: input.scheduled_at,
+      }),
+    });
+  } catch (error) {
+    console.error("Failed to trigger distribute workflow:", error);
+    // Don't throw - the distribution log was created even if workflow trigger failed
   }
 
   return inserted.map((i) => ({
