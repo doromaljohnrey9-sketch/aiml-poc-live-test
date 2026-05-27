@@ -12,3 +12,4 @@ export { distributionLogs } from "./distribution-logs/distribution-logs.schema";
 export { engagementMetrics } from "./engagement-metrics/engagement-metrics.schema";
 export { blogPosts } from "./blog-posts/blog-posts.schema";
 export { auditLogs } from "./audit-logs/audit-logs.schema";
+export { feedback } from "./feedback/feedback.schema";

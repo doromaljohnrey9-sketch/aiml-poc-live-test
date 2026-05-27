@@ -26,4 +26,7 @@ export const getQueryKey = {
         : ([...getQueryKey.operator.all, "distribution"] as const),
     summary: () => [...getQueryKey.operator.all, "summary"] as const,
   },
+  feedback: {
+    all: ["feedback"] as const,
+  },
 } as const;

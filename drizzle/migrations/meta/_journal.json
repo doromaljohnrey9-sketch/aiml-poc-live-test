@@ -36,6 +36,13 @@
       "when": 1779684782108,
       "tag": "0004_chief_mongu",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1779842111127,
+      "tag": "0005_curious_rockslide",
+      "breakpoints": true
     }
   ]
 }
