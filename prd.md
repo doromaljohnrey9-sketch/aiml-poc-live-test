@@ -467,11 +467,13 @@ export async function someAction(input: InputType) {
 
 These are the only `app/api/` routes in the project. Not for general data access — webhooks and workflow callbacks only.
 
-| Method | Route                    | Protected by              | Description                                                   |
-| ------ | ------------------------ | ------------------------- | ------------------------------------------------------------- |
-| `GET`  | `/api/auth/callback`     | —                         | Supabase OAuth callback (LinkedIn token exchange)             |
-| `POST` | `/api/webhooks/workflow` | `X-Webhook-Secret` header | Vercel Workflow step callbacks (update DB on step completion) |
-| `POST` | `/api/cron/weekly-loop`  | Vercel Cron auth header   | Cron entry point — triggers `aiml-weekly-loop` workflow       |
+| Method | Route                        | Protected by                 | Description                                                   |
+| ------ | ---------------------------- | ---------------------------- | ------------------------------------------------------------- |
+| `GET`  | `/api/auth/callback`         | —                            | Supabase OAuth callback (LinkedIn token exchange)             |
+| `POST` | `/api/webhooks/workflow`     | `X-Webhook-Secret` header    | Vercel Workflow step callbacks (update DB on step completion) |
+| `POST` | `/api/workflows/weekly-loop` | `WORKFLOW_SECRET` (optional) | Triggers `aiml-weekly-loop` workflow                          |
+| `POST` | `/api/workflows/distribute`  | `WORKFLOW_SECRET` (optional) | Triggers `aiml-distribute` workflow                           |
+| `POST` | `/api/workflows/regenerate`  | `WORKFLOW_SECRET` (optional) | Triggers `aiml-regenerate` workflow                           |
 
 ---
 
@@ -647,7 +649,7 @@ workflows/
 
 ### Workflow 1: `aiml-weekly-loop`
 
-**Trigger:** Vercel Cron → `POST /api/cron/weekly-loop` → `start(aimlWeeklyLoop, [])` every Monday 09:00 UTC
+**Trigger:** `POST /api/workflows/weekly-loop` → `start(aimlWeeklyLoop, [])`
 
 **File:** `workflows/weekly-loop/workflow.ts`
 

@@ -24,9 +24,12 @@
     "test:e2e:ui": "playwright test --config=./config/playwright.config.ts --ui",
     "test:e2e:debug": "playwright test --config=./config/playwright.config.ts --debug",
     "reset-project": "node scripts/reset-project.js",
-    "db:seed:roles-permissions": "tsx --env-file=.env drizzle/seed/roles-permissions-seed.ts"
+    "db:seed:roles-permissions": "tsx --env-file=.env drizzle/seed/roles-permissions-seed.ts",
+    "workflow:weekly-loop": "tsx --env-file=.env scripts/trigger-weekly-loop.ts"
   },
   "dependencies": {
+    "@ai-sdk/google": "^3.0.79",
+    "@ai-sdk/openai": "^3.0.65",
     "@hookform/resolvers": "5.2.2",
     "@radix-ui/react-avatar": "1.1.11",
     "@radix-ui/react-collapsible": "1.1.12",
@@ -45,9 +48,11 @@
     "@tavily/core": "^0.7.3",
     "@upstash/ratelimit": "2.0.8",
     "@upstash/redis": "1.37.0",
+    "ai": "^6.0.191",
     "axios": "1.13.6",
     "class-variance-authority": "0.7.1",
     "clsx": "2.1.1",
+    "date-fns": "^4.3.0",
     "drizzle-orm": "0.45.1",
     "lucide-react": "0.562.0",
     "next": "16.2.1",
@@ -56,6 +61,7 @@
     "postgres": "3.4.7",
     "radix-ui": "^1.4.3",
     "react": "19.2.4",
+    "react-day-picker": "^10.0.1",
     "react-dom": "19.2.4",
     "react-hook-form": "7.71.0",
     "recharts": "3.8.0",
@@ -64,6 +70,7 @@
     "tailwind-merge": "3.4.0",
     "tailwindcss": "4.1.18",
     "vaul": "^1.1.2",
+    "workflow": "^4.2.5",
     "zod": "4.3.5",
     "zustand": "5.0.11"
   },

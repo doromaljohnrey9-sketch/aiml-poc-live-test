@@ -141,6 +141,11 @@ export function createSubmissionsColumns(): ColumnDef<ContentSource>[] {
             icon: <CheckCircleIcon className="h-3 w-3" />,
             label: "Processed",
           },
+          distributed: {
+            variant: "default" as const,
+            icon: <CheckCircleIcon className="h-3 w-3" />,
+            label: "Distributed",
+          },
           failed: {
             variant: "destructive" as const,
             icon: <XCircleIcon className="h-3 w-3" />,

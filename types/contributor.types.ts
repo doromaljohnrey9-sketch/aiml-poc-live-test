@@ -14,7 +14,7 @@ export type ContentSource = {
   extractedText: string | null;
   contextNote: string | null;
   language: "en" | "ko";
-  status: "pending" | "processing" | "processed" | "failed";
+  status: "pending" | "processing" | "processed" | "distributed" | "failed";
   createdAt: string;
   updatedAt: string;
 };

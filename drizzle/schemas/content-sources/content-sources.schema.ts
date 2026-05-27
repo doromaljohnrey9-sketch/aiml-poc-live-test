@@ -19,7 +19,7 @@ export const contentSources = pgTable(
     extractedText: text("extracted_text"),
     contextNote: text("context_note"),
     language: text("language").notNull(), // 'en' | 'ko'
-    status: text("status").notNull().default("pending"), // 'pending' | 'processing' | 'processed' | 'failed'
+    status: text("status").notNull().default("pending"), // 'pending' | 'processing' | 'processed' | 'distributed' | 'failed'
   },
   (table) => ({
     submittedByIdx: index("content_sources_submitted_by_idx").on(table.submittedBy),

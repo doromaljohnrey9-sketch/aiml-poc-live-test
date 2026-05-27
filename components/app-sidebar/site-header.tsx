@@ -15,6 +15,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { useSidebar } from "@/components/ui/sidebar";
+import { FeedbackDialog } from "@/components/feedback-dialog";
 
 export const SiteHeader = () => {
   const pathname = usePathname();
@@ -62,11 +63,9 @@ export const SiteHeader = () => {
             ))}
           </BreadcrumbList>
         </Breadcrumb>
-        {/*
-         *
-         * NOTE: Placeholder for additional header content
-         *
-         * */}
+        <div className="ml-auto">
+          <FeedbackDialog />
+        </div>
       </div>
     </header>
   );
