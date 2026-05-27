@@ -52,7 +52,7 @@ export const FeedbackDialog = () => {
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button variant="ghost" size="icon" aria-label="Send feedback">
-          <MessageSquareIcon className="size-5" />
+          <MessageSquareIcon className="size-4" />
         </Button>
       </DialogTrigger>
       <DialogContent>
