@@ -109,9 +109,11 @@ export async function publishToNewsletter(content: any) {
     });
 
     console.log("Resend response:", JSON.stringify(response, null, 2));
+    console.log("Response has error property:", "error" in response);
+    console.log("Response error value:", (response as any).error);
 
     // Handle response which might be an error or success
-    if ("error" in response) {
+    if ("error" in response && response.error) {
       console.error("Resend API error details:", response);
       throw new FatalError(
         `Resend API error: ${JSON.stringify(response.error) || "Unknown error"}`
